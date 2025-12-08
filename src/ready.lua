@@ -9,6 +9,7 @@ BoonState =
 	SlotUnavailable = "SlotUnavailable",
 	GodUnavailable = "GodUnavailable",
 	Available = "Available",
+	Denied = "Denied",
 }
 
 ---@enum RequirementType
@@ -26,6 +27,7 @@ BoonStateColors =
 	SlotUnavailable = Color.BonesUnaffordable,
 	GodUnavailable = Color.BonesLocked,
 	Available = Color.White,
+	Denied = Color.Black,
 }
 
 ---@type table
@@ -63,6 +65,21 @@ ListRequirementFormatTable =
 		},
 	},
 	Available = ScreenData.BoonInfo.ListRequirementUnacquiredFormat,
+	Denied =
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = BoonStateColors.Denied,
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,0}, ShadowOffset={0, 0},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
 }
 
 ---@enum BoonSlotGivers
@@ -136,7 +153,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	-- override start
 	-- We retrieve boon state from GetBoonState, then use the corresponding color from the BoonStateColors enum except for available boons, use rarity
 	local boonState = GetBoonState(traitName)
-	if boonState ~= BoonState.Available then
+	if boonState ~= BoonState.Available and boonState ~= BoonState.Denied then
 		titleText.Color = BoonStateColors[boonState]
 	else
 		titleText.Color = rarityColor
@@ -277,12 +294,13 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 
 	BoonInfoScreenUpdateTooltipToggle( screen, button )
 
-	if CurrentRun.BannedTraits[traitName] and CurrentHubRoom == nil then
+	-- override start
+	if boonState == BoonState.Denied and CurrentHubRoom == nil then
 		local bannedOverlay = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Animation = "BoonInfoSlotLocked", X = purchaseButton.X, Y = purchaseButton.Y })
 		table.insert( traitInfo.Components, bannedOverlay )
 	end
 
-	-- override start
+	
 	local trait_to_replace = GetSacrificeBoon(traitName)
 	if trait_to_replace ~= nil then
 
@@ -302,12 +320,6 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 		table.insert( traitInfo.Components, exchange_icon_frame )
 		Attach({ Id = exchange_icon_frame.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
 		SetAnimation({ DestinationId = exchange_icon_frame.Id, Name = "BoonIcon_Frame_Rare" })
-
-		-- Could use locked overlay ? 
-		-- Looks bad currently with the red flashing animation on page refresh + it doesn't help with visibility
-		-- local bannedOverlay = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Animation = "BoonSlotLocked", X = purchaseButton.X, Y = purchaseButton.Y })
-		-- table.insert( traitInfo.Components, bannedOverlay )
-
 	end
 	-- override end
 	
@@ -360,15 +372,9 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 				allSame = false
 			end
 		
-			--override START
+			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
-			-- local listRequirementFormat = nil
 			local listRequirementFormat = ShallowCopyTable( ListRequirementFormatTable[GetBoonState(traitName)] )
-			-- if HeroHasTrait( traitName ) then
-			-- 	listRequirementFormat = ShallowCopyTable( ScreenData.BoonInfo.ListRequirementAcquiredFormat )			
-			-- else
-			-- 	listRequirementFormat = ShallowCopyTable( screen.ListRequirementUnacquiredFormat )
-			-- end
 			-- override END
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY

@@ -31,6 +31,19 @@ function IsBoonSlotGiver(traitName)
 	return false
 end
 
+---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
+---@param traitName string
+---@return boolean
+function IsBoonDenied(traitName)
+	for bannedBoon, banned in pairs(CurrentRun.BannedTraits) do
+		if traitName == bannedBoon then
+			return banned
+		end
+	end
+
+	return false
+end
+
 ---Gets the slot of the given boon (if applicable).
 ---@param trait_name string
 ---@return string?
@@ -71,7 +84,8 @@ local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
 	return (stateCountTable.Picked and stateCountTable.Picked >= pickCountNeeded and BoonState.Picked)
 		or (stateCountTable.Available and stateCountTable.Available > 0 and BoonState.Available)
 		or (stateCountTable.GodUnavailable and stateCountTable.GodUnavailable > 0 and BoonState.GodUnavailable)
-		or BoonState.SlotUnavailable
+		or (stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable > 0 and BoonState.SlotUnavailable)
+		or BoonState.Denied
 end
 
 ---Get the state of the requirements for the given requirement table. When evaluating boon states<br>
@@ -79,7 +93,8 @@ end
 --- 1. Picked<br>
 --- 2. Available<br>
 --- 3. God unavailable<br>
---- 4. Slot unavailable
+--- 4. Slot unavailable<br>
+--- 5. Slot denied (vow of denials)
 ---@param requirements table
 ---@param type RequirementType
 ---@return BoonState
@@ -105,7 +120,8 @@ function GetRequirementState(requirements, type)
 			states[state_name] = (states[state_name] or 0) + 1
 		end
 		-- We prioritize unavailability for OneOfEachSet type
-		return (states.SlotUnavailable and states.SlotUnavailable > 0 and BoonState.SlotUnavailable)
+		return (states.Denied and states.Denied > 0 and BoonState.Denied)
+			or (states.SlotUnavailable and states.SlotUnavailable > 0 and BoonState.SlotUnavailable)
 			or (states.GodUnavailable and states.GodUnavailable > 0 and BoonState.GodUnavailable)
 			or (states.Available and states.Available > 0 and BoonState.Available)
 			or BoonState.Picked
@@ -142,15 +158,17 @@ end
 
 ---Get the state of the given boon in the following order of importance:<br>
 --- 1. Picked<br>
---- 2. Slot unavailable<br>
---- 3. God unavailable<br>
---- 4. State from its requirements, see GetBoonRequirementState
+--- 2. Denied (vow of denials)<br>
+--- 3. Slot unavailable<br>
+--- 4. God unavailable<br>
+--- 5. State from its requirements, see GetBoonRequirementState
 ---@param trait_name string
 ---@return BoonState
 function GetBoonState(trait_name)
 	local requirementState = GetBoonRequirementState(trait_name)
 	return (IsBoonPicked(trait_name) and BoonState.Picked)
-		or (not IsBoonSlotGiver(trait_name) and BoonState.Available)
+		or (not IsBoonSlotGiver(trait_name) and BoonState.Available) -- Make all boons from non slot boon god available
+		or ((IsBoonDenied(trait_name) or requirementState == BoonState.Denied) and BoonState.Denied)
 		or ((not IsBoonSlotAvailable(trait_name) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
 		or ((not IsBoonGodAvailable(trait_name) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
 		or BoonState.Available
