@@ -20,15 +20,15 @@ This approach makes it immediately obvious:
 
 ## Boon button
 
-### Default
+Default            |  Modded
+-|-
+![Boon button default](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonColorBefore.jpg)  |  ![Boon button modded](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonColor.jpg)
 
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonColorBefore.jpg" alt="Boon button default">
+### Default
 
 All boons are shown, with title coloring based on their rarity (white/blue/purple/orange/green).
 
-### With Mod
-
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonColor.jpg" alt="Boon button modded">
+### Modded
 
 Titles coloring now follows the logic:
 - *light green*: it is currently picked.
@@ -40,10 +40,12 @@ Boons that require a sacrifice also display the boon that would be exchanged in 
 
 ## Requirements listing
 
-### Default
+Default            |  Modded
+-|-
+![Requirements default - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReqBefore.jpg)  |  ![Requirements modded - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReq.jpg)
+![Requirements default - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReqBefore.jpg)  |  ![Requirements modded - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReq.jpg)
 
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReqBefore.jpg" alt="Requirements default - sacrifice">
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReqBefore.jpg" alt="Requirements default - keepsake">
+### Default
 
 When looking at requirements for a given boon, the only information we get is:
 - a boon in the requirements is picked: boon name colored in *white* instead of *grey*
@@ -51,11 +53,9 @@ When looking at requirements for a given boon, the only information we get is:
 
 ### With Mod
 
-Boons of the **NeedsSacrifice** category are colored in *dark red*:
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReq.jpg" alt="Requirements modded - sacrifice">
+Boons of the **NeedsSacrifice** category are colored in *dark red*.
 
-Those of the **NeedsKeepsake** take *dark blue* coloring:
-<img src="https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReq.jpg" alt="Requirements modded - keepsake">
+Those of the **NeedsKeepsake** take *dark blue* coloring
 
 Headings coloring is now changed as well, based on the availability of the required boons:
 - *light green*: same as before, a required boon is picked
