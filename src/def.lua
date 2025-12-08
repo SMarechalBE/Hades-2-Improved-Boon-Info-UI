@@ -1,12 +1,14 @@
----@meta AuthorName-ModName
+---@meta SMarBe-Improved_Boon_Info_UI
 local public = {}
 
--- document whatever you made publicly available to other plugins here
--- use luaCATS annotations and give descriptions where appropriate
---  e.g. 
---	---@param a integer helpful description
---	---@param b string helpful description
---	---@return table c helpful description
---	function public.do_stuff(a, b) end
+---Get the state of the given boon in the following order of importance:<br>
+--- 1. Picked<br>
+--- 2. Denied (vow of denials)<br>
+--- 3. Slot unavailable<br>
+--- 4. God unavailable<br>
+--- 5. State from its requirements, see GetBoonRequirementState
+---@param traitName string
+---@return BoonState
+function public.GetBoonState(traitName) end
 
 return public

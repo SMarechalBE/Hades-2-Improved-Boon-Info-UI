@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Boons banned from vow of denial follow the same logic as other boons applied to requirements.
+- Boon state getter added to public space for to get consumed as dependency.
 
 ## [0.1.0] - 2025-12-08
 
