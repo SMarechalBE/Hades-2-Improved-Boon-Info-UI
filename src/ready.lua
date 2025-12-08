@@ -301,25 +301,25 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	end
 
 	
-	local trait_to_replace = GetSacrificeBoon(traitName)
-	if trait_to_replace ~= nil then
+	local traitToReplace = GetSacrificeBoon(traitName)
+	if traitToReplace ~= nil then
 
-		screen.TraitToReplaceName = trait_to_replace
+		screen.TraitToReplaceName = traitToReplace
 
-		local exchange_symbol = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.ExchangeSymbol.Scale })
-		table.insert( traitInfo.Components, exchange_symbol )
-		Attach({ Id = exchange_symbol.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeSymbol.OffsetX, OffsetY = screenData.ExchangeSymbol.OffsetY })
-		SetAnimation({ DestinationId = exchange_symbol.Id, Name = "TraitExchangeSymbol" })
+		local exchangeSymbol = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.ExchangeSymbol.Scale })
+		table.insert( traitInfo.Components, exchangeSymbol )
+		Attach({ Id = exchangeSymbol.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeSymbol.OffsetX, OffsetY = screenData.ExchangeSymbol.OffsetY })
+		SetAnimation({ DestinationId = exchangeSymbol.Id, Name = "TraitExchangeSymbol" })
 		
-		local exchange_icon = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })
-		table.insert( traitInfo.Components, exchange_icon )
-		Attach({ Id = exchange_icon.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
-		SetAnimation({ DestinationId = exchange_icon.Id, Name = TraitData[trait_to_replace].Icon })
+		local exchangeIcon = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })
+		table.insert( traitInfo.Components, exchangeIcon )
+		Attach({ Id = exchangeIcon.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
+		SetAnimation({ DestinationId = exchangeIcon.Id, Name = TraitData[traitToReplace].Icon })
 
-		local exchange_icon_frame = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })		
-		table.insert( traitInfo.Components, exchange_icon_frame )
-		Attach({ Id = exchange_icon_frame.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
-		SetAnimation({ DestinationId = exchange_icon_frame.Id, Name = "BoonIcon_Frame_Rare" })
+		local exchangeIconFrame = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })		
+		table.insert( traitInfo.Components, exchangeIconFrame )
+		Attach({ Id = exchangeIconFrame.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
+		SetAnimation({ DestinationId = exchangeIconFrame.Id, Name = "BoonIcon_Frame_Rare" })
 	end
 	-- override end
 	
@@ -347,8 +347,8 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	if metRequirement then
 		color = Color.BoonInfoAcquired
 	else
-		local req_type = string.match(headerTextArgs.Text, "^BoonInfo_(.*)$")
-		color = BoonStateColors[GetRequirementState(traitList, req_type)]
+		local reqType = string.match(headerTextArgs.Text, "^BoonInfo_(.*)$")
+		color = BoonStateColors[GetRequirementState(traitList, reqType)]
 	end
 	-- override END
 

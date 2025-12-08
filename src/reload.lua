@@ -3,18 +3,18 @@
 ---@diagnostic disable: lowercase-global
 
 ---Checks whether the given boon is currently picked
----@param trait_name string
+---@param traitName string
 ---@return boolean
-function IsBoonPicked(trait_name)
-	return HeroHasTrait(trait_name)
+function IsBoonPicked(traitName)
+	return HeroHasTrait(traitName)
 end
 
 ---Checks whether the god of the given boon is available (e.g., in the god pool if max reached).  
----@param trait_name string
+---@param traitName string
 ---@return boolean
-function IsBoonGodAvailable(trait_name)
+function IsBoonGodAvailable(traitName)
 	return not ReachedMaxGods()
-		or CurrentRun.Hero.MetGods[GetGodSourceName(trait_name)]
+		or CurrentRun.Hero.MetGods[GetGodSourceName(traitName)]
 end
 
 ---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
@@ -45,21 +45,21 @@ function IsBoonDenied(traitName)
 end
 
 ---Gets the slot of the given boon (if applicable).
----@param trait_name string
+---@param traitName string
 ---@return string?
-function GetSlot(trait_name)
-	local trait_data = TraitData[trait_name]
-	return  trait_data
-		and trait_data.Slot
+function GetSlot(traitName)
+	local traitData = TraitData[traitName]
+	return  traitData
+		and traitData.Slot
 end
 
 ---Checks if the slot of the given boon is available, always true if the boon has no slot.
----@param trait_name string
+---@param traitName string
 ---@return boolean
-function IsBoonSlotAvailable(trait_name)
-	local slot_name = GetSlot(trait_name)
-	return not slot_name
-		or not HeroSlotFilled(slot_name)
+function IsBoonSlotAvailable(traitName)
+	local slotName = GetSlot(traitName)
+	return not slotName
+		or not HeroSlotFilled(slotName)
 end
 
 ---Create a BoonState table with each entry representing the count of occurences of that state in<br>
@@ -68,9 +68,9 @@ end
 ---@return table
 local function CreateBoonStateCountTable(traits)
 	local states = {}
-	for _, trait_name in ipairs(traits) do
-		local state_name = GetBoonState(trait_name)
-		states[state_name] = (states[state_name] or 0) + 1
+	for _, traitName in ipairs(traits) do
+		local stateName = GetBoonState(traitName)
+		states[stateName] = (states[stateName] or 0) + 1
 	end
 
 	return states
@@ -116,8 +116,8 @@ function GetRequirementState(requirements, type)
 	if type == RequirementType.OneFromEachSet then
 		local states = {}
 		for _, set in ipairs(requirements) do
-			local state_name = GetRequirementState(set, RequirementType.OneOf)
-			states[state_name] = (states[state_name] or 0) + 1
+			local stateName = GetRequirementState(set, RequirementType.OneOf)
+			states[stateName] = (states[stateName] or 0) + 1
 		end
 		-- We prioritize unavailability for OneOfEachSet type
 		return (states.Denied and states.Denied > 0 and BoonState.Denied)
@@ -135,24 +135,24 @@ end
 ---Get the state of the requirements for the given boon. If multiple requirements are unavailable,<br>
 ---slot unavailability takes precedence on god unavailability as the condition is usually harder<br>
 ---to fulfill (i.e. requires a boon sacrifice vs requires a keepsake)
----@param trait_name string
+---@param traitName string
 ---@return BoonState
-function GetBoonRequirementState(trait_name)
-	local boon_requirements = TraitRequirements[trait_name]
-	if not boon_requirements then
+function GetBoonRequirementState(traitName)
+	local boonRequirements = TraitRequirements[traitName]
+	if not boonRequirements then
 		return BoonState.Available
 	end
 
 	for _, type in pairs(RequirementType) do
 
-		local req = boon_requirements[type]
+		local req = boonRequirements[type]
 		if req then
 			return GetRequirementState(req, type)
 		end
 	end
 
 	modutil.mod.Print("Something went wrong when retrieving TraitRequirements for trait: "
-					.. trait_name .. ", should have OneOf, TwoOf or OneFromEachSet")
+					.. traitName .. ", should have OneOf, TwoOf or OneFromEachSet")
 	return BoonState.SlotUnavailable --We shouldn't ever get here
 end
 
@@ -162,28 +162,28 @@ end
 --- 3. Slot unavailable<br>
 --- 4. God unavailable<br>
 --- 5. State from its requirements, see GetBoonRequirementState
----@param trait_name string
+---@param traitName string
 ---@return BoonState
-function GetBoonState(trait_name)
-	local requirementState = GetBoonRequirementState(trait_name)
-	return (IsBoonPicked(trait_name) and BoonState.Picked)
-		or (not IsBoonSlotGiver(trait_name) and BoonState.Available) -- Make all boons from non slot boon god available
-		or ((IsBoonDenied(trait_name) or requirementState == BoonState.Denied) and BoonState.Denied)
-		or ((not IsBoonSlotAvailable(trait_name) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
-		or ((not IsBoonGodAvailable(trait_name) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
+function GetBoonState(traitName)
+	local requirementState = GetBoonRequirementState(traitName)
+	return (IsBoonPicked(traitName) and BoonState.Picked)
+		or (not IsBoonSlotGiver(traitName) and BoonState.Available) -- Make all boons from non slot boon god available
+		or ((IsBoonDenied(traitName) or requirementState == BoonState.Denied) and BoonState.Denied)
+		or ((not IsBoonSlotAvailable(traitName) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
+		or ((not IsBoonGodAvailable(traitName) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
 		or BoonState.Available
 end
 
 ---TODO
----@param slot_name string
+---@param slotName string
 ---@return string?
-function GetCurrentBoonForSlot(slot_name)
-	if not slot_name then
+function GetCurrentBoonForSlot(slotName)
+	if not slotName then
 		return nil
 	end
 
 	for _, traitData in ipairs( CurrentRun.Hero.Traits ) do
-		if traitData.Slot == slot_name then
+		if traitData.Slot == slotName then
 			return traitData.Name
 		end
 	end
@@ -192,21 +192,21 @@ function GetCurrentBoonForSlot(slot_name)
 end
 
 ---TODO
----@param trait_name string
+---@param traitName string
 ---@return string?
-function GetSacrificeBoon(trait_name)
-	if not trait_name then
+function GetSacrificeBoon(traitName)
+	if not traitName then
 		return nil
 	end
-	local trait_data = TraitData[trait_name]
-	if not trait_data then
-		return nil
-	end
-
-	local sacrifice_trait_name = GetCurrentBoonForSlot(trait_data.Slot)
-	if not sacrifice_trait_name or trait_name == sacrifice_trait_name then
+	local traitData = TraitData[traitName]
+	if not traitData then
 		return nil
 	end
 
-	return sacrifice_trait_name
+	local sacrificeTraitName = GetCurrentBoonForSlot(traitData.Slot)
+	if not sacrificeTraitName or traitName == sacrificeTraitName then
+		return nil
+	end
+
+	return sacrificeTraitName
 end
