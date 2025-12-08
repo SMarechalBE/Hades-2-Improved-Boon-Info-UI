@@ -17,6 +17,20 @@ function IsBoonGodAvailable(trait_name)
 		or CurrentRun.Hero.MetGods[GetGodSourceName(trait_name)]
 end
 
+---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
+---@param traitName string
+---@return boolean
+function IsBoonSlotGiver(traitName)
+	local godName = GetGodSourceName(traitName)
+	for _, slotGod in ipairs(BoonSlotGivers) do
+		if godName == slotGod then
+			return true
+		end
+	end
+
+	return false
+end
+
 ---Gets the slot of the given boon (if applicable).
 ---@param trait_name string
 ---@return string?
@@ -136,6 +150,7 @@ end
 function GetBoonState(trait_name)
 	local requirementState = GetBoonRequirementState(trait_name)
 	return (IsBoonPicked(trait_name) and BoonState.Picked)
+		or (not IsBoonSlotGiver(trait_name) and BoonState.Available)
 		or ((not IsBoonSlotAvailable(trait_name) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
 		or ((not IsBoonGodAvailable(trait_name) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
 		or BoonState.Available

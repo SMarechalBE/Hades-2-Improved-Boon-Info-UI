@@ -65,6 +65,19 @@ ListRequirementFormatTable =
 	Available = ScreenData.BoonInfo.ListRequirementUnacquiredFormat,
 }
 
+---@enum BoonSlotGivers
+BoonSlotGivers = {
+	"AphroditeUpgrade",
+	"ApolloUpgrade",
+	"DemeterUpgrade", 
+	"HephaestusUpgrade",
+	"HestiaUpgrade",
+	"HeraUpgrade",
+	"PoseidonUpgrade",
+	"ZeusUpgrade",
+	"AresUpgrade",
+}
+
 
 modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, index)
 	local screenData = ScreenData.UpgradeChoice
