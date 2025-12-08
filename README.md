@@ -44,6 +44,7 @@ Default            |  Modded
 -|-
 ![Requirements default - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReqBefore.jpg)  |  ![Requirements modded - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReq.jpg)
 ![Requirements default - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReqBefore.jpg)  |  ![Requirements modded - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReq.jpg)
+![Requirements default - vow of denial](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/DeniedReqBefore.jpg)  |  ![Requirements modded - vow of denial](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/DeniedReq.jpg)
 
 ### Default
 
@@ -53,16 +54,14 @@ When looking at requirements for a given boon, the only information we get is:
 
 ### Modded
 
-Boons of the **NeedsSacrifice** category are colored in *dark red*.
-
-Those of the **NeedsKeepsake** take *dark blue* coloring
-
 Headings coloring is now changed as well, based on the availability of the required boons:
 - *light green*: same as before, a required boon is picked
 - *white*: at least one boon is available
 - *dark blue*: no available boon and at least one requires adding a new god to the maxed out pool
 - *dark red*: all boons require a sacrifice.
+- *black*: all boons are banned (vow of denial).
 
+Boons inside listing follow the same coloring scheme as default for available and picked ones. Then for the others, the coloring applies the same logic as above.
 
 ## Future updates
 
