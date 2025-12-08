@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2025-12-08
+
 ### Added
 
 - First version of the mod!
+
+[unreleased]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/9a9334ef72bc6531721d2af5941171b58a519c84...0.1.0
