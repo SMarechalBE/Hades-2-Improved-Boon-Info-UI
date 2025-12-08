@@ -2,74 +2,383 @@
 -- globals we define are private to our plugin!
 ---@diagnostic disable: lowercase-global
 
--- here is where your mod sets up all the things it will do.
--- this file will not be reloaded if it changes during gameplay
--- 	so you will most likely want to have it reference
---	values and functions later defined in `reload.lua`.
+---@enum BoonState
+BoonState =
+{
+	Picked = "Picked",
+	SlotUnavailable = "SlotUnavailable",
+	GodUnavailable = "GodUnavailable",
+	Available = "Available",
+}
 
--- These are some sample code snippets of what you can do with our modding framework:
-local file = rom.path.combine(rom.paths.Content, 'Game/Text/en/ShellText.en.sjson')
-sjson.hook(file, function(data)
-	return sjson_ShellText(data)
+---@enum RequirementType
+RequirementType =
+{
+	OneOf = "OneOf",
+	TwoOf = "TwoOf",
+	OneFromEachSet = "OneFromEachSet",
+}
+
+---@enum BoonStateColors
+BoonStateColors =
+{
+	Picked = Color.BoonInfoAcquired,
+	SlotUnavailable = Color.BonesUnaffordable,
+	GodUnavailable = Color.BonesLocked,
+	Available = Color.White,
+}
+
+---@type table
+ListRequirementFormatTable =
+{
+	Picked = ScreenData.BoonInfo.ListRequirementAcquiredFormat,
+	SlotUnavailable =
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = BoonStateColors.SlotUnavailable,
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
+	GodUnavailable =
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = BoonStateColors.GodUnavailable,
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
+	Available = ScreenData.BoonInfo.ListRequirementUnacquiredFormat,
+}
+
+
+modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, index)
+	local screenData = ScreenData.UpgradeChoice
+
+	local traitInfo = {}
+	traitInfo.Components = {}
+	table.insert( screen.TraitContainers, traitInfo )
+	local offset = { X = screen.ButtonStartX, Y = screen.ButtonStartY + index * screenData.ButtonSpacingY }
+	local itemLocationX = offset.X + ScreenCenterNativeOffsetX
+	local itemLocationY = offset.Y + ScreenCenterNativeOffsetY
+
+	screen.Components["BooninfoButton"..index] = traitInfo
+
+	local traitData = TraitData[traitName]
+	local rarity = GetBoonRarityFromData( traitData )
+	local overrideRarityName = GetBoonOverrideRarityNameFromData( traitData )
+
+	local consumable = GetRampedConsumableData( ConsumableData[traitName], { ForceMin = true } )
+	local newTraitData = consumable or GetProcessedTraitData({ Unit = CurrentRun.Hero, TraitName = traitName, Rarity = rarity, ForBoonInfo = true, ForceMin = true })
+	newTraitData.ForBoonInfo = true
+	SetTraitTextData( newTraitData )
+
+	local backingAnim = screenData.RarityBackingAnimations[rarity]
+	if traitData ~= nil and traitData.UpgradeChoiceBackingAnimation ~= nil then
+		backingAnim = traitData.UpgradeChoiceBackingAnimation
+	end
+	
+	local purchaseButton = ShallowCopyTable( screenData.PurchaseButton )
+	purchaseButton.Group = "Combat_Menu_TraitTray"
+	if backingAnim ~= nil then
+		purchaseButton.Animation = backingAnim
+	end
+	purchaseButton.X = itemLocationX + screenData.ButtonOffsetX
+	purchaseButton.Y = itemLocationY
+	purchaseButton.TraitData = newTraitData
+	local button = CreateScreenComponent( purchaseButton )
+	traitInfo.PurchaseButton = button
+	button.TraitData = newTraitData
+	button.Screen = screen
+	button.OnMouseOverFunctionName = "MouseOverBoonInfoItem"
+	button.OnMouseOffFunctionName = "MouseOffBoonInfoItem"
+	SetInteractProperty({ DestinationId = button.Id, Property = "TooltipOffsetX", Value = screen.TooltipOffsetX })
+	SetInteractProperty({ DestinationId = button.Id, Property = "TooltipOffsetY", Value = screen.TooltipOffsetY })
+	--SetInteractProperty({ DestinationId = button.Id, Property = "TooltipX", Value = screen.TooltipX })
+	--SetInteractProperty({ DestinationId = button.Id, Property = "TooltipY", Value = screen.TooltipY })
+	AttachLua({ Id = button.Id, Table = button })
+	table.insert( traitInfo.Components, button )
+
+	local rarityColor = newTraitData.CustomRarityColor or Color["BoonPatch"..rarity]
+
+	traitInfo.TitleBox = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", X = purchaseButton.X, Y = purchaseButton.Y })
+	local titleText = ShallowCopyTable( screenData.TitleText )
+	titleText.Id = traitInfo.TitleBox.Id
+	titleText.Text = newTraitData.Name
+	titleText.LuaValue = newTraitData
+	-- override start
+	-- We retrieve boon state from GetBoonState, then use the corresponding color from the BoonStateColors enum except for available boons, use rarity
+	local boonState = GetBoonState(traitName)
+	if boonState ~= BoonState.Available then
+		titleText.Color = BoonStateColors[boonState]
+	else
+		titleText.Color = rarityColor
+	end
+	-- override end
+	CreateTextBox( titleText )
+	table.insert( traitInfo.Components, traitInfo.TitleBox )
+
+	local descriptionText = ShallowCopyTable( screenData.DescriptionText )
+	descriptionText.Text = newTraitData.CodexName or newTraitData.Name
+	descriptionText.LuaValue = newTraitData
+	descriptionText.TextSymbolScale = newTraitData.DescriptionTextSymbolScale or descriptionText.TextSymbolScale
+	descriptionText.Id = traitInfo.PurchaseButton.Id
+	CreateTextBoxWithFormat( descriptionText )
+
+	if not newTraitData.HideStatLinesInCodex then
+		local statLines = newTraitData.StatLines
+		if newTraitData.CustomStatLinesWithShrineUpgrade ~= nil and GetNumShrineUpgrades( newTraitData.CustomStatLinesWithShrineUpgrade.ShrineUpgradeName ) > 0 then
+			statLines = newTraitData.CustomStatLinesWithShrineUpgrade.StatLines
+		end
+		if statLines ~= nil then
+			local appendToId = descriptionText.Id
+			for lineNum, statLine in ipairs( statLines ) do
+				if statLine ~= "" then
+
+					local offsetY = (lineNum - 1) * screenData.LineHeight
+				
+					local statLineLeft = ShallowCopyTable( screenData.StatLineLeft )
+					statLineLeft.Id = traitInfo.PurchaseButton.Id
+					statLineLeft.Text = statLine
+					statLineLeft.OffsetY = offsetY
+					statLineLeft.AppendToId = appendToId
+					statLineLeft.LuaValue = newTraitData
+					CreateTextBoxWithFormat( statLineLeft )
+
+					local statLineRight = ShallowCopyTable( screenData.StatLineRight )
+					statLineRight.Id = traitInfo.PurchaseButton.Id
+					statLineRight.Text = statLine
+					statLineRight.OffsetY = offsetY
+					statLineRight.AppendToId = appendToId
+					statLineRight.LuaValue = newTraitData
+					CreateTextBoxWithFormat( statLineRight )
+
+				end
+			end
+		end
+	end
+
+	if newTraitData.FlavorText ~= nil then
+		local flavorText = ShallowCopyTable( screenData.FlavorText )
+		flavorText.Id = traitInfo.PurchaseButton.Id
+		flavorText.Text = newTraitData.FlavorText
+		CreateTextBox( flavorText )
+	end
+
+	local rarityText = ShallowCopyTable( screenData.RarityText )
+	rarityText.Id = traitInfo.PurchaseButton.Id
+	rarityText.Text = overrideRarityName or newTraitData.CustomRarityName or "Boon_"..tostring(rarity)
+	rarityText.Color = rarityColor 
+	CreateTextBox( rarityText )
+
+	local highlight = ShallowCopyTable( screenData.Highlight )
+	highlight.X = purchaseButton.X
+	highlight.Y = purchaseButton.Y
+	highlight.Group = "Combat_Menu_TraitTray_Overlay"
+	button.Highlight = CreateScreenComponent( highlight )
+	traitInfo.Highlight = button.Highlight
+	
+	local icon = ShallowCopyTable( screenData.Icon )
+	icon.X = screenData.IconOffsetX + itemLocationX + screenData.ButtonOffsetX
+	icon.Y = screenData.IconOffsetY + itemLocationY
+	icon.Group = "Combat_Menu_TraitTray_Overlay"
+	traitInfo.Icon = CreateScreenComponent( icon )
+
+	if not newTraitData.NoFrame then
+		local frame = ShallowCopyTable( screenData.Frame )
+		frame.X = screenData.IconOffsetX + itemLocationX + screenData.ButtonOffsetX
+		frame.Y = screenData.IconOffsetY + itemLocationY
+		frame.Group = "Combat_Menu_TraitTray_Overlay"
+		frame.Animation = "Frame_Boon_Menu_"..( newTraitData.Frame or rarity )
+		traitInfo.Frame = CreateScreenComponent( frame )
+	end
+
+	traitInfo.QuestIcon = CreateScreenComponent({
+		Name = "BlankObstacle",
+		Group = "Combat_Menu_TraitTray_Overlay",
+		X = offset.X + screenData.QuestIconOffsetX + ScreenCenterNativeOffsetX,
+		Y = offset.Y + screenData.QuestIconOffsetY + ScreenCenterNativeOffsetY
+	})
+	traitInfo.TraitName = traitName
+	traitInfo.Index = index
+
+	traitInfo.PinIcon = CreateScreenComponent({
+		Name = "BlankObstacle",
+		Group = "Combat_Menu_TraitTray_Overlay",
+		Animation = "StoreItemPin",
+		Alpha = 0.0,
+		X = offset.X + ScreenData.UpgradeChoice.PinOffsetX + ScreenCenterNativeOffsetX,
+		Y = offset.Y + ScreenData.UpgradeChoice.PinOffsetY + ScreenCenterNativeOffsetY
+	})
+	traitInfo.PurchaseButton.PinButtonId = traitInfo.PinIcon.Id
+	if HasStoreItemPin( traitName ) then
+		SetAlpha({ Id = traitInfo.PinIcon.Id, Fraction = 1 })
+		-- Silent toolip
+		CreateTextBox({ Id = button.Id, TextSymbolScale = 0, Text = "NeededPinBoonTooltip_Codex", Color = Color.Transparent })
+	end
+	
+	if IsGameStateEligible( screen, TraitRarityData.ElementalGameStateRequirements ) and not IsEmpty( newTraitData.Elements ) then
+		local elementName = GetFirstValue( newTraitData.Elements )
+		local elementIcon = ShallowCopyTable( screenData.ElementIcon )
+		elementIcon.Group = "Combat_Menu_TraitTray_Overlay"
+		elementIcon.Name = TraitElementData[elementName].Icon
+		elementIcon.X = itemLocationX + elementIcon.XShift
+		elementIcon.Y = itemLocationY + elementIcon.YShift
+		local elementIconComponent = CreateScreenComponent( elementIcon )
+		table.insert( traitInfo.Components, elementIconComponent )
+	end
+	
+	SetTraitTrayDetails(
+	{
+		TraitData = newTraitData, 
+		ForBoonInfo = true,
+		--DetailsBox = traitInfo.DetailsBacking,
+		--RarityBox = traitInfo.RarityBox, 
+		--TitleBox = traitInfo.TitleBox, 
+		Patch = traitInfo.Patch, 
+		Icon = traitInfo.Icon, 
+		Frame = traitInfo.Frame,
+		--StatLines = traitInfo.StatlineBackings,
+		--ElementalIcons = traitInfo.ElementalIcons 
+	})
+
+	if not GameState.TraitsTaken[traitName] and not GameState.ItemInteractions[traitName] and HasActiveQuestForName( traitName ) then
+		SetAnimation({ DestinationId = traitInfo.QuestIcon.Id, Name = "QuestItemFound" })
+	else
+		SetAnimation({ DestinationId = traitInfo.QuestIcon.Id, Name = "Blank" })
+	end
+
+	BoonInfoScreenUpdateTooltipToggle( screen, button )
+
+	if CurrentRun.BannedTraits[traitName] and CurrentHubRoom == nil then
+		local bannedOverlay = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Animation = "BoonInfoSlotLocked", X = purchaseButton.X, Y = purchaseButton.Y })
+		table.insert( traitInfo.Components, bannedOverlay )
+	end
+
+	-- override start
+	local trait_to_replace = GetSacrificeBoon(traitName)
+	if trait_to_replace ~= nil then
+
+		screen.TraitToReplaceName = trait_to_replace
+
+		local exchange_symbol = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.ExchangeSymbol.Scale })
+		table.insert( traitInfo.Components, exchange_symbol )
+		Attach({ Id = exchange_symbol.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeSymbol.OffsetX, OffsetY = screenData.ExchangeSymbol.OffsetY })
+		SetAnimation({ DestinationId = exchange_symbol.Id, Name = "TraitExchangeSymbol" })
+		
+		local exchange_icon = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })
+		table.insert( traitInfo.Components, exchange_icon )
+		Attach({ Id = exchange_icon.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
+		SetAnimation({ DestinationId = exchange_icon.Id, Name = TraitData[trait_to_replace].Icon })
+
+		local exchange_icon_frame = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })		
+		table.insert( traitInfo.Components, exchange_icon_frame )
+		Attach({ Id = exchange_icon_frame.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
+		SetAnimation({ DestinationId = exchange_icon_frame.Id, Name = "BoonIcon_Frame_Rare" })
+
+		-- Could use locked overlay ? 
+		-- Looks bad currently with the red flashing animation on page refresh + it doesn't help with visibility
+		-- local bannedOverlay = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Animation = "BoonSlotLocked", X = purchaseButton.X, Y = purchaseButton.Y })
+		-- table.insert( traitInfo.Components, bannedOverlay )
+
+	end
+	-- override end
+	
 end)
 
-modutil.mod.Path.Wrap("SetupMap", function(base, ...)
-	prefix_SetupMap()
-	return base(...)
-end)
-
-game.OnControlPressed({'Gift', function()
-	return trigger_Gift()
-end})
 
 
--- Everything below this line is part of the example mod creation guide,
--- which you can find on our wiki, replacing Schelemeus portrait:
--- https://sgg-modding.github.io/Hades2ModWiki/docs/category/creating-your-first-mod
--- Note that the custom .pkg files are not included in the template, and you will
--- need to create them yourself if you want to follow the tutorial.
+modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerTextArgs, traitList, startY, metRequirement)
+	if traitList == nil then
+		return
+	end
+	local originalY = startY
+	local headerText = headerTextArgs.Text
+	if TableLength(traitList) == 1 and headerTextArgs.TextSingular then
+		headerText = headerTextArgs.TextSingular
+	end
+	
+	-- override START
+	-- TwoOf isn't used but won't work anyway in current game codebase.
+	--  Still, we're implementing against it by pattern matching on the value of headerTextArgs.Text
+	--  Its value is always either BoonInfo_OneOf, either BoonInfo_TwoOf, thus we extract first part
+	--  retrieving OneOf or TwoOf.
+	-- We can then retrieve the corresponding requirement state by calling GetRequirementState()
+	local color = Color.White
+	if metRequirement then
+		color = Color.BoonInfoAcquired
+	else
+		local req_type = string.match(headerTextArgs.Text, "^BoonInfo_(.*)$")
+		color = BoonStateColors[GetRequirementState(traitList, req_type)]
+	end
+	-- override END
 
------------------------------------------------------------
---------------- Step 1: Loading the package ---------------
------------------------------------------------------------
+	local listRequirementHeaderFormat = ShallowCopyTable( ScreenData.BoonInfo.ListRequirementHeaderFormat )
+	listRequirementHeaderFormat.Id = screen.Components.RequirementsText.Id
+	listRequirementHeaderFormat.Text = headerText
+	listRequirementHeaderFormat.Color = color
+	listRequirementHeaderFormat.OffsetY = startY
+	CreateTextBox( listRequirementHeaderFormat )
 
-------- Method 1: Calling the package load function when entering the Hub_PreRun room
--- modutil.mod.Path.Wrap("DeathAreaRoomTransition", function(base, source, args)
---   if game.CurrentHubRoom.Name == "Hub_PreRun" then
---     mod.LoadSkellyPackage()
---     end
---   base(source, args)
--- end)
+	startY = startY + ScreenData.BoonInfo.ListRequirementHeaderSpacingY
+	local sharedGod = nil
+	local allSame = true
+	for i, traitName in ipairs( traitList ) do
+		local traitData = TraitData[traitName]
+		if traitData.CodexGameStateRequirements == nil or IsGameStateEligible( traitData, traitData.CodexGameStateRequirements ) then 
+			local lootSourceName = GetLootSourceName( traitName, { ForBoonInfo = true } )
+			if not sharedGod then
+				sharedGod = lootSourceName
+			elseif sharedGod ~= lootSourceName and not LootData[sharedGod].TraitIndex[traitName] then
+				allSame = false
+			end
+		
+			--override START
+			-- For each boon, we get its current state, and then take the corresponding table
+			-- local listRequirementFormat = nil
+			local listRequirementFormat = ShallowCopyTable( ListRequirementFormatTable[GetBoonState(traitName)] )
+			-- if HeroHasTrait( traitName ) then
+			-- 	listRequirementFormat = ShallowCopyTable( ScreenData.BoonInfo.ListRequirementAcquiredFormat )			
+			-- else
+			-- 	listRequirementFormat = ShallowCopyTable( screen.ListRequirementUnacquiredFormat )
+			-- end
+			-- override END
+			listRequirementFormat.Id = screen.Components.RequirementsText.Id
+			listRequirementFormat.OffsetY = startY
+			listRequirementFormat.LuaValue = { TraitName = traitName }
+			CreateTextBox( listRequirementFormat )
 
+			startY = startY + ScreenData.BoonInfo.ListRequirementSpacingY
+		end
+	end
 
-------- Method 2: Adding the package load function to the Schelemeus setup events
--- local loadSkellyPackageCall = { FunctionName = _PLUGIN.guid .. ".LoadSkellyPackage" }
--- table.insert(game.EnemyData.NPC_Skelly_01.SetupEvents, loadSkellyPackageCall)
+	local headerIcon = ScreenData.BoonInfo.GenericHeaderIcon
+	local headerIconScale = ScreenData.BoonInfo.GenericHeaderIconScale
+	if allSame and sharedGod and LootData[sharedGod].BoonInfoIcon then
+		headerIcon = LootData[sharedGod].BoonInfoIcon
+		headerIconScale = ScreenData.BoonInfo.GodIconScale
+	end
+	local godPlate = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = headerIcon, Scale = headerIconScale, Alpha = 0.0 })
+	table.insert( screen.TraitRequirements, godPlate.Id )
+	Attach({ Id = godPlate.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetY = originalY })
+	if not screen.ShowTooltips then
+		SetAlpha({ Id = godPlate.Id, Fraction = 1.0, Duration = 0.2 })
+	end
 
-
-------- Method 3: Adding the package to the list of packages loaded whenever Schelemeus is spawned
-local customPortraitsPackageName = _PLUGIN.guid .. "Portraits"
-table.insert(game.EnemyData.NPC_Skelly_01.LoadPackages, customPortraitsPackageName)
-
-
------------------------------------------------------------
------------ Step 2: Modifying the portrait path -----------
------------------------------------------------------------
-
--- All packages built by `deppth2 hpk` will have the package name as part of all file paths, to prevent mods from clashing
--- If you added any nested folders in your package, include them here as well
-local newPortraitFilePath = _PLUGIN.guid .. "Portraits\\Portraits_Skelly_01"
-
--- rom.path.combine is provided by Hell2Modding to build file paths correctly across different operating systems
--- rom.paths.Content() will return the path to the Content folder of the current Hades II installation
-local guiPortraitsVFXFile = rom.path.combine(rom.paths.Content(), "Game\\Animations\\GUI_Portraits_VFX.sjson")
-
-sjson.hook(guiPortraitsVFXFile, function(data)
-  for _, entry in ipairs(data.Animations) do
-    if entry.Name == "Portrait_Skelly_Default_01" or entry.Name == "Portrait_Skelly_Default_01_Exit" then
-      entry.FilePath = newPortraitFilePath
-			entry.CreateAnimations = {}
-			entry.OffsetY = 0
-    end
-  end
+	startY = startY + ScreenData.BoonInfo.ListRequirementHeaderSpacingY
+	return startY
 end)
