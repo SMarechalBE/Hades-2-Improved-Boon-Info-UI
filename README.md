@@ -51,7 +51,7 @@ When looking at requirements for a given boon, the only information we get is:
 - a boon in the requirements is picked: boon name colored in *white* instead of *grey*
 - a requirement is fulfilled: heading colored in *light green* instead of *white*
 
-### With Mod
+### Modded
 
 Boons of the **NeedsSacrifice** category are colored in *dark red*.
 
