@@ -171,11 +171,15 @@ end
 --- 5. State from its requirements, see GetBoonRequirementState
 ---@param traitName string
 ---@return BoonState
-function GetBoonState(traitName)
+function public.GetBoonState(traitName)
+	if IsBoonPicked(traitName) then
+		return BoonState.Picked
+	elseif not IsBoonFromSlotGiver(traitName) then -- Make all boons from non slot boon god available
+		return BoonState.Available
+	end
+
 	local requirementState = GetBoonRequirementState(traitName)
-	return (IsBoonPicked(traitName) and BoonState.Picked)
-		or (not IsBoonSlotGiver(traitName) and BoonState.Available) -- Make all boons from non slot boon god available
-		or ((IsBoonDenied(traitName) or requirementState == BoonState.Denied) and BoonState.Denied)
+	return ((IsBoonDenied(traitName) or requirementState == BoonState.Denied) and BoonState.Denied)
 		or ((not IsBoonSlotAvailable(traitName) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
 		or ((not IsBoonGodAvailable(traitName) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
 		or BoonState.Available

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Public definitions for consumption
 
+### Fixed
+
+- Crash when scrolling down Chaos boon offerings.
+
 ## [0.2.0] - 2025-12-08
 
 ### Added
