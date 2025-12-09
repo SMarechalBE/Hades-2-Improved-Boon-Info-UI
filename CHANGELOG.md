@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Public definitions for consumption
+
 ## [0.2.0] - 2025-12-08
 
 ### Added

@@ -11,4 +11,12 @@ local public = {}
 ---@return BoonState
 function public.GetBoonState(traitName) end
 
+---Checks whether the god is one of the Olympian (slot) boon giver
+---@param godName string
+---@return boolean
+function public.IsSlotGiver(godName) end
+
+
+public.BoonState = ...
+
 return public

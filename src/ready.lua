@@ -1,9 +1,9 @@
----@meta _
+---@meta SMarBe-Improved_Boon_Info_UI
 -- globals we define are private to our plugin!
 ---@diagnostic disable: lowercase-global
 
 ---@enum BoonState
-BoonState =
+public.BoonState =
 {
 	Picked = "Picked",
 	SlotUnavailable = "SlotUnavailable",

@@ -1,4 +1,4 @@
----@meta _
+---@meta SMarBe-Improved_Boon_Info_UI
 -- globals we define are private to our plugin!
 ---@diagnostic disable: lowercase-global
 
@@ -17,11 +17,10 @@ function IsBoonGodAvailable(traitName)
 		or CurrentRun.Hero.MetGods[GetGodSourceName(traitName)]
 end
 
----Checks whether the god of the given boon is one of the Olympian (slot) boon giver
----@param traitName string
+---Checks whether the god is one of the Olympian (slot) boon giver
+---@param godName string
 ---@return boolean
-function IsBoonSlotGiver(traitName)
-	local godName = GetGodSourceName(traitName)
+function public.IsSlotGiver(godName)
 	for _, slotGod in ipairs(BoonSlotGivers) do
 		if godName == slotGod then
 			return true
@@ -29,6 +28,14 @@ function IsBoonSlotGiver(traitName)
 	end
 
 	return false
+end
+
+---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
+---@param traitName string
+---@return boolean
+function IsBoonFromSlotGiver(traitName)
+	local godName = GetGodSourceName(traitName)
+	return IsSlotGiver(godName)
 end
 
 ---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
