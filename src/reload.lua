@@ -84,7 +84,8 @@ local function CreateBoonStateCountTable(traits)
 	return states
 end
 
----Parses a table created by CreateBoonStateCountTable and returns the boon state.
+---Parses a table created by CreateBoonStateCountTable and returns the boon state.<br> 
+---  Those strange calculations are necessary to handle pickCountNeeded > 1 
 ---@param stateCountTable table
 ---@param pickCountNeeded integer The number of picked boons required in the table
 ---@return string
@@ -204,7 +205,7 @@ function GetCurrentBoonForSlot(slotName)
 	return nil
 end
 
----TODO
+---Retrieve different boon to sacrifice for this boon 
 ---@param traitName string
 ---@return string?
 function GetSacrificeBoon(traitName)
