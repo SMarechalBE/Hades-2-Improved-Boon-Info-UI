@@ -20,7 +20,7 @@ end
 ---Checks whether the god is one of the Olympian (slot) boon giver
 ---@param godName string
 ---@return boolean
-function public.IsSlotGiver(godName)
+function IsSlotGiver(godName)
 	for _, slotGod in ipairs(BoonSlotGivers) do
 		if godName == slotGod then
 			return true
@@ -29,6 +29,7 @@ function public.IsSlotGiver(godName)
 
 	return false
 end
+public.IsSlotGiver = IsSlotGiver
 
 ---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
 ---@param traitName string
@@ -171,7 +172,7 @@ end
 --- 5. State from its requirements, see GetBoonRequirementState
 ---@param traitName string
 ---@return BoonState
-function public.GetBoonState(traitName)
+function GetBoonState(traitName)
 	if IsBoonPicked(traitName) then
 		return BoonState.Picked
 	elseif not IsBoonFromSlotGiver(traitName) then -- Make all boons from non slot boon god available
@@ -185,7 +186,9 @@ function public.GetBoonState(traitName)
 		or BoonState.Available
 end
 
----TODO
+public.GetBoonState = GetBoonState
+
+---Retrieve the boon currently in the given slot
 ---@param slotName string
 ---@return string?
 function GetCurrentBoonForSlot(slotName)

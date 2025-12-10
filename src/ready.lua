@@ -3,7 +3,7 @@
 ---@diagnostic disable: lowercase-global
 
 ---@enum BoonState
-public.BoonState =
+BoonState =
 {
 	Picked = "Picked",
 	SlotUnavailable = "SlotUnavailable",
@@ -11,6 +11,7 @@ public.BoonState =
 	Available = "Available",
 	Denied = "Denied",
 }
+public.BoonState = BoonState
 
 ---@enum RequirementType
 RequirementType =
