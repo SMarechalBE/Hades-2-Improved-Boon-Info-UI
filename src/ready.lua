@@ -10,6 +10,7 @@ BoonState =
 	GodUnavailable = "GodUnavailable",
 	Available = "Available",
 	Denied = "Denied",
+	Unfulfilled = "Unfulfilled"
 }
 public.BoonState = BoonState
 
@@ -28,13 +29,28 @@ BoonStateColors =
 	SlotUnavailable = Color.BonesUnaffordable,
 	GodUnavailable = Color.BonesLocked,
 	Available = Color.White,
+	Unfulfilled = Color.White,
 	Denied = Color.Black,
 }
 
 ---@type table
 ListRequirementFormatTable =
 {
-	Picked = ScreenData.BoonInfo.ListRequirementAcquiredFormat,
+	Picked = 
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = { 255, 255, 255, 225 },
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
 	SlotUnavailable =
 	{
 		Text = "BoonInfo_BulletPoint",
@@ -65,7 +81,36 @@ ListRequirementFormatTable =
 			OpacityWithOwner = true,
 		},
 	},
-	Available = ScreenData.BoonInfo.ListRequirementUnacquiredFormat,
+	Available =
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = { 52, 48, 58, 185 },
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 0},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
+	Unfulfilled =
+	{
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = { 52, 48, 58, 50 }, -- Same as available but lower alpha
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 0},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	},
 	Denied =
 	{
 		Text = "BoonInfo_BulletPoint",
@@ -154,10 +199,14 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	-- override start
 	-- We retrieve boon state from GetBoonState, then use the corresponding color from the BoonStateColors enum except for available boons, use rarity
 	local boonState = GetBoonState(traitName)
-	if boonState ~= BoonState.Available and boonState ~= BoonState.Denied then
-		titleText.Color = BoonStateColors[boonState]
-	else
+	if boonState == BoonState.Available then
 		titleText.Color = rarityColor
+	elseif boonState == BoonState.Unfulfilled or boonState == BoonState.Denied then
+		local rarityColorTransparent = game.ShallowCopyTable(rarityColor)
+		rarityColorTransparent[4] = 120 -- half alpha for unfulfilled
+		titleText.Color = rarityColorTransparent
+	else
+		titleText.Color = BoonStateColors[boonState]
 	end
 	-- override end
 	CreateTextBox( titleText )

@@ -90,11 +90,39 @@ end
 ---@param pickCountNeeded integer The number of picked boons required in the table
 ---@return string
 local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
-	return (stateCountTable.Picked and stateCountTable.Picked >= pickCountNeeded and BoonState.Picked)
-		or (stateCountTable.Available and stateCountTable.Available > 0 and BoonState.Available)
-		or (stateCountTable.GodUnavailable and stateCountTable.GodUnavailable > 0 and BoonState.GodUnavailable)
-		or (stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable > 0 and BoonState.SlotUnavailable)
-		or BoonState.Denied
+	local pickedCount = stateCountTable.Picked and stateCountTable.Picked or 0
+	if pickedCount >= pickCountNeeded then
+		return BoonState.Available -- requirement is fulfilled, so boon is available
+	else
+		pickCountNeeded = pickCountNeeded - pickedCount -- Adjust pickCountNeeded with what we have picked already
+	end
+
+	local availableCount = stateCountTable.Available and stateCountTable.Available or 0
+	if availableCount >= pickCountNeeded then
+		return BoonState.Unfulfilled
+	else
+		pickCountNeeded = pickCountNeeded - availableCount
+	end
+
+	local unfulfilledCount = stateCountTable.Unfulfilled and stateCountTable.Unfulfilled or 0
+	if unfulfilledCount >= pickCountNeeded then
+		return BoonState.Unfulfilled
+	else
+		pickCountNeeded = pickCountNeeded - unfulfilledCount
+	end
+
+	local godUnavailableCount = stateCountTable.GodUnavailable and stateCountTable.GodUnavailable or 0
+	if godUnavailableCount >= pickCountNeeded then
+		return BoonState.GodUnavailable
+	else
+		pickCountNeeded = pickCountNeeded - godUnavailableCount
+	end
+
+	if stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable > 0 then
+		return BoonState.SlotUnavailable
+	else
+		return BoonState.Denied
+	end
 end
 
 ---Get the state of the requirements for the given requirement table. When evaluating boon states<br>
@@ -108,7 +136,7 @@ end
 ---@param type RequirementType
 ---@return BoonState
 function GetRequirementState(requirements, type)
-	if not requirements then 
+	if not requirements then
 		return BoonState.Available
 	end
 
@@ -132,8 +160,8 @@ function GetRequirementState(requirements, type)
 		return (states.Denied and states.Denied > 0 and BoonState.Denied)
 			or (states.SlotUnavailable and states.SlotUnavailable > 0 and BoonState.SlotUnavailable)
 			or (states.GodUnavailable and states.GodUnavailable > 0 and BoonState.GodUnavailable)
-			or (states.Available and states.Available > 0 and BoonState.Available)
-			or BoonState.Picked
+			or (states.Unfulfilled and states.Unfulfilled > 0 and BoonState.Unfulfilled)
+			or BoonState.Available
 	end
 
 	modutil.mod.Print("Something went wrong when checking requirements state, wrong type passed: "
@@ -184,6 +212,7 @@ function GetBoonState(traitName)
 	return ((IsBoonDenied(traitName) or requirementState == BoonState.Denied) and BoonState.Denied)
 		or ((not IsBoonSlotAvailable(traitName) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
 		or ((not IsBoonGodAvailable(traitName) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
+		or (requirementState == BoonState.Unfulfilled and BoonState.Unfulfilled)
 		or BoonState.Available
 end
 
@@ -216,6 +245,6 @@ function GetSacrificeBoon(traitName)
 	if not sacrificeTraitName or traitName == sacrificeTraitName then
 		return nil
 	end
-
+	
 	return sacrificeTraitName
 end

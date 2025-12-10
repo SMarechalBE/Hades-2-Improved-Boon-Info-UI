@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Unfulfilled boon category to further improve clarity to better differentiate which boons are available to those that still need a requirement.
+- Color transparency for Denied boons, should look much better now in the codex.
+
 ### Changed
 
-- Added game namespace to game specific calls for an improved readability.
+- Game namespace to game specific calls for an improved readability.
 
 ## [0.2.1] - 2025-12-09
 
