@@ -6,15 +6,15 @@
 ---@param traitName string
 ---@return boolean
 function IsBoonPicked(traitName)
-	return HeroHasTrait(traitName)
+	return game.HeroHasTrait(traitName)
 end
 
 ---Checks whether the god of the given boon is available (e.g., in the god pool if max reached).  
 ---@param traitName string
 ---@return boolean
 function IsBoonGodAvailable(traitName)
-	return not ReachedMaxGods()
-		or CurrentRun.Hero.MetGods[GetGodSourceName(traitName)]
+	return not game.ReachedMaxGods()
+		or game.CurrentRun.Hero.MetGods[game.GetGodSourceName(traitName)]
 end
 
 ---Checks whether the god is one of the Olympian (slot) boon giver
@@ -34,7 +34,7 @@ end
 ---@param traitName string
 ---@return boolean
 function IsBoonFromSlotGiver(traitName)
-	local godName = GetGodSourceName(traitName)
+	local godName = game.GetGodSourceName(traitName)
 	return IsSlotGiver(godName)
 end
 
@@ -42,7 +42,7 @@ end
 ---@param traitName string
 ---@return boolean
 function IsBoonDenied(traitName)
-	for bannedBoon, banned in pairs(CurrentRun.BannedTraits) do
+	for bannedBoon, banned in pairs(game.CurrentRun.BannedTraits) do
 		if traitName == bannedBoon then
 			return banned
 		end
@@ -55,7 +55,7 @@ end
 ---@param traitName string
 ---@return string?
 function GetSlot(traitName)
-	local traitData = TraitData[traitName]
+	local traitData = game.TraitData[traitName]
 	return  traitData
 		and traitData.Slot
 end
@@ -66,7 +66,7 @@ end
 function IsBoonSlotAvailable(traitName)
 	local slotName = GetSlot(traitName)
 	return not slotName
-		or not HeroSlotFilled(slotName)
+		or not game.HeroSlotFilled(slotName)
 end
 
 ---Create a BoonState table with each entry representing the count of occurences of that state in<br>
@@ -145,7 +145,7 @@ end
 ---@param traitName string
 ---@return BoonState
 function GetBoonRequirementState(traitName)
-	local boonRequirements = TraitRequirements[traitName]
+	local boonRequirements = game.TraitRequirements[traitName]
 	if not boonRequirements then
 		return BoonState.Available
 	end
@@ -189,11 +189,10 @@ end
 ---@param slotName string
 ---@return string?
 function GetCurrentBoonForSlot(slotName)
-	if not slotName then
-		return nil
-	end
+	if not slotName then return nil end
+	if not game.CurrentRun or not game.CurrentRun.Hero or not game.CurrentRun.Hero.Traits then return nil end
 
-	for _, traitData in ipairs( CurrentRun.Hero.Traits ) do
+	for _, traitData in ipairs( game.CurrentRun.Hero.Traits ) do
 		if traitData.Slot == slotName then
 			return traitData.Name
 		end
@@ -206,13 +205,8 @@ end
 ---@param traitName string
 ---@return string?
 function GetSacrificeBoon(traitName)
-	if not traitName then
-		return nil
-	end
-	local traitData = TraitData[traitName]
-	if not traitData then
-		return nil
-	end
+	local traitData = traitName and game.TraitData[traitName]
+	if not traitData then return nil end
 
 	local sacrificeTraitName = GetCurrentBoonForSlot(traitData.Slot)
 	if not sacrificeTraitName or traitName == sacrificeTraitName then

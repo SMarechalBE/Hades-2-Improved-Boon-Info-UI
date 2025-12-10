@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added game namespace to game specific calls for an improved readability.
+
 ## [0.2.1] - 2025-12-09
 
 ### Added
