@@ -14,7 +14,7 @@ end
 ---@return boolean
 function IsBoonGodAvailable(traitName)
 	return not game.ReachedMaxGods()
-		or game.CurrentRun.Hero.MetGods[game.GetGodSourceName(traitName)]
+		or game.GetInteractedGodsThisRun()[game.GetGodSourceName(traitName)]
 end
 
 ---Checks whether the god is one of the Olympian (slot) boon giver
