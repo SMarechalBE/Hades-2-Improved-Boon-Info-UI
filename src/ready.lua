@@ -107,6 +107,7 @@ BoonSlotGivers = {
 	"PoseidonUpgrade",
 	"ZeusUpgrade",
 	"AresUpgrade",
+	"PlayerUnit", -- Enable it with Run Boon Overview (though this is not great pattern as it is hidden)
 }
 
 
