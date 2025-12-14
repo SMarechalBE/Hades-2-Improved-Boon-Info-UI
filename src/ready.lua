@@ -22,111 +22,63 @@ RequirementType =
 	OneFromEachSet = "OneFromEachSet",
 }
 
----@enum BoonStateColors
-BoonStateColors =
+local function ChangeAlpha(color, alpha)
+	local newColor = game.ShallowCopyTable(color)
+	newColor[4] = alpha
+
+	return newColor
+end
+
+BoonColors = {}
+
+BoonColors.State =
 {
 	Picked = Color.BoonInfoAcquired,
 	SlotUnavailable = Color.BonesUnaffordable,
 	GodUnavailable = Color.BonesLocked,
-	Available = Color.White,
-	Unfulfilled = Color.White,
-	Denied = Color.Black,
+	-- Available = rarity
+	-- Unfulfilled: rarity with lower alpha
+	-- Denied = rarity with lower alpha
 }
 
----@type table
-ListRequirementFormatTable =
+BoonColors.Requirement = {}
+
+BoonColors.Requirement.Header =
 {
-	Picked = 
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = { 255, 255, 255, 225 },
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
-	SlotUnavailable =
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = BoonStateColors.SlotUnavailable,
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
-	GodUnavailable =
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = BoonStateColors.GodUnavailable,
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
-	Available =
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = { 52, 48, 58, 185 },
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 0},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
-	Unfulfilled =
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = { 52, 48, 58, 50 }, -- Same as available but lower alpha
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 0},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
-	Denied =
-	{
-		Text = "BoonInfo_BulletPoint",
-		FontSize = 22,
-		OffsetX = 30,
-		Color = BoonStateColors.Denied,
-		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,0}, ShadowOffset={0, 0},
-		Justification = "Left",
-		LuaKey = "TempTextData",
-		DataProperties =
-		{
-			OpacityWithOwner = true,
-		},
-	},
+	Available = BoonColors.State.Picked,
+	Unfulfilled = Color.White,
+	SlotUnavailable = BoonColors.State.SlotUnavailable,
+	GodUnavailable = BoonColors.State.GodUnavailable,
+	Denied = Color.BonesInactive, -- black-ish
 }
+
+local GreyishColor = { 52, 48, 58, 185 }
+BoonColors.Requirement.BulletList =
+{
+	Picked = Color.White,
+	SlotUnavailable = ChangeAlpha(BoonColors.State.SlotUnavailable, 185),
+	GodUnavailable = ChangeAlpha(BoonColors.State.GodUnavailable, 185),
+	Available = GreyishColor,
+	Unfulfilled = ChangeAlpha(GreyishColor, 50),
+	Denied = ChangeAlpha(BoonColors.Requirement.Header.Denied, 185),
+}
+
+local function CreateListRequirementFormatTableWithColor(color)
+	return {
+		Text = "BoonInfo_BulletPoint",
+		FontSize = 22,
+		OffsetX = 30,
+		Color = color,
+		Font = "P22UndergroundSCMedium",
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
+		Justification = "Left",
+		LuaKey = "TempTextData",
+		DataProperties =
+		{
+			OpacityWithOwner = true,
+		},
+	}
+end
 
 ---@enum BoonSlotGivers
 BoonSlotGivers = {
@@ -197,16 +149,14 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	titleText.Text = newTraitData.Name
 	titleText.LuaValue = newTraitData
 	-- override start
-	-- We retrieve boon state from GetBoonState, then use the corresponding color from the BoonStateColors enum except for available boons, use rarity
+	-- We retrieve boon state from GetBoonState, then retrieve the corresponding color
 	local boonState = GetBoonState(traitName)
 	if boonState == BoonState.Available then
 		titleText.Color = rarityColor
 	elseif boonState == BoonState.Unfulfilled or boonState == BoonState.Denied then
-		local rarityColorTransparent = game.ShallowCopyTable(rarityColor)
-		rarityColorTransparent[4] = 120 -- half alpha for unfulfilled
-		titleText.Color = rarityColorTransparent
+		titleText.Color = ChangeAlpha(rarityColor, 120)
 	else
-		titleText.Color = BoonStateColors[boonState]
+		titleText.Color = BoonColors.State[boonState]
 	end
 	-- override end
 	CreateTextBox( titleText )
@@ -394,11 +344,11 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	--  retrieving OneOf or TwoOf.
 	-- We can then retrieve the corresponding requirement state by calling GetRequirementState()
 	local color = Color.White
-	if metRequirement then
+	if metRequirement then -- Not sure what it is for but let's keep it in
 		color = Color.BoonInfoAcquired
 	else
 		local reqType = string.match(headerTextArgs.Text, "^BoonInfo_(.*)$")
-		color = BoonStateColors[GetRequirementState(traitList, reqType)]
+		color = BoonColors.Requirement.Header[GetRequirementState(traitList, reqType)]
 	end
 	-- override END
 
@@ -424,7 +374,7 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 		
 			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
-			local listRequirementFormat = ShallowCopyTable( ListRequirementFormatTable[GetBoonState(traitName)] )
+			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[GetBoonState(traitName)])
 			-- override END
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY
