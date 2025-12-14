@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Public API access as the mod should work in all situations since it directly relies on game data
+
 ## [0.3.0] - 2025-12-10
 
 ### Added
