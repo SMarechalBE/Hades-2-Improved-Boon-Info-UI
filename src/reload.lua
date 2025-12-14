@@ -30,7 +30,6 @@ function IsSlotGiver(godName)
 
 	return false
 end
-public.IsSlotGiver = IsSlotGiver
 
 ---Checks whether the god of the given boon is one of the Olympian (slot) boon giver
 ---@param traitName string
@@ -216,8 +215,6 @@ function GetBoonState(traitName)
 		or (requirementState == BoonState.Unfulfilled and BoonState.Unfulfilled)
 		or BoonState.Available
 end
-
-public.GetBoonState = GetBoonState
 
 ---Retrieve the boon currently in the given slot
 ---@param slotName string
