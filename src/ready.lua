@@ -12,7 +12,6 @@ BoonState =
 	Denied = "Denied",
 	Unfulfilled = "Unfulfilled"
 }
-public.BoonState = BoonState
 
 ---@enum RequirementType
 RequirementType =
