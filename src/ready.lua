@@ -63,14 +63,24 @@ BoonColors.Requirement.BulletList =
 	Denied = ChangeAlpha(BoonColors.Requirement.Header.Denied, 185),
 }
 
-local function CreateListRequirementFormatTableWithColor(color)
+ShadowOffsetBulletList =
+{
+	Picked = {0, 1},
+	SlotUnavailable = {0, 1},
+	GodUnavailable = {0, 1},
+	Available = {0, 0},
+	Unfulfilled = {0, 0},
+	Denied = {0, 0},
+}
+
+local function CreateListRequirementFormatTableWithColor(color, shadowOffset)
 	return {
 		Text = "BoonInfo_BulletPoint",
 		FontSize = 22,
 		OffsetX = 30,
 		Color = color,
 		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset={0, 1},
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset= shadowOffset or {0, 1},
 		Justification = "Left",
 		LuaKey = "TempTextData",
 		DataProperties =
@@ -374,7 +384,7 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 		
 			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
-			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[GetBoonState(traitName)])
+			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[GetBoonState(traitName)], ShadowOffsetBulletList[GetBoonState(traitName)])
 			-- override END
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY
