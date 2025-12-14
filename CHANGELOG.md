@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Bug with requirement heading displayed in white even when fulfilled
+- Gods sometimes were shown as unavailable when a run was not ongoing
+- 4th god picked during a run would show his/her offerings as unavailable
+- God unavailable behaviour will be more consistent with duo boons
 
 ### Removed
 
