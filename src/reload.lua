@@ -317,3 +317,174 @@ function GetSacrificeBoon(traitName)
 
 	return sacrificeTraitName
 end
+
+
+local Context =
+{
+	Filter =
+	{
+		Values =
+		{
+			Order =
+			{
+				"Available",
+				"Unfulfilled",
+				"Unavailable",
+				"All",
+			},
+
+			All =
+			{
+				Text = "ALL",
+				StatesAllowed =
+				{
+					BoonState.Picked,
+					BoonState.SlotUnavailable,
+					BoonState.GodUnavailable,
+					BoonState.Available,
+					BoonState.Denied,
+					BoonState.Unfulfilled,
+				}
+			},
+
+			Available =
+			{
+				Text = "AVAILABLE",
+				StatesAllowed =
+				{
+					BoonState.Available,
+					BoonState.SlotUnavailable,
+				}
+			},
+
+			Unfulfilled =
+			{
+				Text = "UNFULFILLED",
+				StatesAllowed =
+				{
+					BoonState.Available,
+					BoonState.SlotUnavailable,
+					BoonState.Unfulfilled,
+				}
+			},
+
+			Unavailable =
+			{
+				Text = "UNAVAILABLE",
+				StatesAllowed =
+				{
+					BoonState.SlotUnavailable,
+					BoonState.GodUnavailable,
+					BoonState.Available,
+					BoonState.Unfulfilled,
+				}
+			},
+
+		},
+
+		CurrentIndex = 1,
+	},
+}
+
+function BoonInfoScreenNextFilter( screen, button )
+	SetFilter(Context.Filter.CurrentIndex + 1, screen)
+	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
+end
+
+function BoonInfoScreenPreviousFilter( screen, button )
+	SetFilter(Context.Filter.CurrentIndex - 1, screen)
+	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
+end
+
+function SetComponent(componentId, setOn)
+	if setOn then
+		game.SetAlpha({ Id = componentId, Fraction = 1.0, Duration = 0.0 })
+		game.UseableOn({ Id = componentId })
+	else
+		game.SetAlpha({ Id = componentId, Fraction = 0.0, Duration = 0.0 })
+		game.UseableOff({ Id = componentId})
+	end
+end
+
+function GetFilterValue(value)
+	return Context.Filter.Values.Order[value]
+end
+
+function GetCurrentFilterText()
+	local filter = GetFilterValue(Context.Filter.CurrentIndex)
+	return filter and "FILTER: "..Context.Filter.Values[filter].Text
+end
+
+function GetCurrentFilterAllowedStates()
+	local filter = GetFilterValue(Context.Filter.CurrentIndex)
+	return filter and Context.Filter.Values[filter].StatesAllowed
+end
+
+function ApplyFilter(screen)
+	-- We can't simply call ShowBoonInfoScreen because of recursion, I'm not fluent enough in Lua to
+	-- know what to do to avoid this
+	BoonInfoPopulateTraits( screen ) -- Only do the rest below if #traitList > 0 ?
+	game.CreateBoonInfoButtons( screen )
+	game.TeleportCursor({ DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id, ForceUseCheck = true })
+	game.UpdateBoonInfoPageButtons( screen )
+end
+
+function SetFilter(index, screen)
+	Context.Filter.CurrentIndex = index
+
+	local components = screen.Components
+	if not components then return end
+
+	local textFilterTypeId = components.TextFilterType and components.TextFilterType.Id
+	if textFilterTypeId then
+		local filterText = GetCurrentFilterText()
+		if filterText then
+			game.ModifyTextBox({ Id = textFilterTypeId, Text = filterText })
+		end
+		SetComponent(textFilterTypeId, filterText)
+	end
+
+	local previousFilterId = components.PreviousFilter and components.PreviousFilter.Id
+	if previousFilterId then
+		SetComponent(previousFilterId, GetFilterValue(index - 1))
+	end
+
+	local nextFilterId = components.NextFilter and components.NextFilter.Id
+	if nextFilterId then
+		SetComponent(nextFilterId, GetFilterValue(index + 1))
+	end
+
+	ApplyFilter(screen)
+end
+
+function ShowBoonInfoScreen_After_CreateScreenFromData(screen)
+	local components = screen and screen.Components
+	if not components then return end
+
+	if not IsSlotGiver(screen.LootName) then
+		SetComponent(components.PreviousFilter.Id)
+		SetComponent(components.NextFilter.Id)
+		SetComponent(components.TextFilterType.Id)
+		return
+	end
+
+	SetFilter(1, screen)
+end
+
+function BoonInfoPopulateTraits_ApplyFilter(screen)
+	if not IsSlotGiver(screen.LootName) then return end
+
+	local allowedStates = GetCurrentFilterAllowedStates()
+	if not allowedStates then return end -- Shouldn't be the case
+
+	local filteredTraitList = {}
+	for _, traitName in ipairs(screen.TraitList) do
+		local boonState = GetBoonState(traitName)
+		for _, state in ipairs(allowedStates) do
+			if boonState == state then
+				table.insert(filteredTraitList, traitName)
+			end
+		end
+	end
+	screen.TraitList = filteredTraitList
+end
