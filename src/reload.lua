@@ -18,6 +18,7 @@ function IsBoonGodAvailable(traitName)
 end
 
 ---Checks whether the god is one of the Olympian (slot) boon giver
+---TODO: I think this should just be GodLoot
 ---@param godName string
 ---@return boolean
 function IsSlotGiver(godName)
