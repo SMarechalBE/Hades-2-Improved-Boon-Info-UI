@@ -13,6 +13,13 @@ BoonState =
 	Unfulfilled = "Unfulfilled"
 }
 
+---@enum BoonUnfulfilledState
+BoonUnfulfilledState =
+{
+	SlotUnavailable = "SlotUnavailable",
+	GodUnavailable = "GodUnavailable",
+}
+
 ---@enum RequirementType
 RequirementType =
 {
@@ -93,7 +100,7 @@ end
 BoonSlotGivers = {
 	"AphroditeUpgrade",
 	"ApolloUpgrade",
-	"DemeterUpgrade", 
+	"DemeterUpgrade",
 	"HephaestusUpgrade",
 	"HestiaUpgrade",
 	"HeraUpgrade",
@@ -357,7 +364,8 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 		color = Color.BoonInfoAcquired
 	else
 		local reqType = string.match(headerTextArgs.Text, "^BoonInfo_(.*)$")
-		color = BoonColors.Requirement.Header[GetRequirementState(traitList, reqType)]
+		local boonState, unfulfilledState = GetRequirementState(traitList, reqType)
+		color = BoonColors.Requirement.Header[unfulfilledState or boonState]
 	end
 	-- override END
 
@@ -383,7 +391,8 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 		
 			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
-			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[GetBoonState(traitName)], ShadowOffsetBulletList[GetBoonState(traitName)])
+			local boonState = GetBoonState(traitName)
+			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[boonState], ShadowOffsetBulletList[boonState])
 			-- override END
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY
