@@ -420,3 +420,107 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	startY = startY + ScreenData.BoonInfo.ListRequirementHeaderSpacingY
 	return startY
 end)
+
+
+BoonInfoFilterButtonsBar =
+{
+	X = game.UIData.ContextualButtonXRight,
+	Y = game.UIData.ContextualButtonY,
+	BottomOffset = game.UIData.ActionBarBottomOffset,
+	AutoAlignContextualButtons = true,
+	AutoAlignJustification = "Right",
+
+	ChildrenOrder =
+	{
+		"NextFilter",
+		"PreviousFilter",
+	},
+
+	Children =
+	{
+		NextFilter =
+		{
+			Graphic = "ContextualActionButton",
+			Alpha = 0.0,
+			Data =
+			{
+				-- Hotkey only
+				OnPressedFunctionName = "BoonInfoScreenNextFilter",
+				ControlHotkeys = { "MenuRight", },
+			},
+			Text = "Menu_NextCategory",
+			TextArgs = game.UIData.ContextualButtonFormatRight,
+		},
+
+		PreviousFilter = 
+		{
+			Graphic = "ContextualActionButton",
+			Alpha = 0.0,
+			Data =
+			{
+				-- Hotkey only
+				OnPressedFunctionName = "BoonInfoScreenPreviousFilter",
+				ControlHotkeys = { "MenuLeft", },
+			},
+			Text = "Menu_PrevCategory",
+			TextArgs = game.UIData.ContextualButtonFormatRight,
+		},
+	},
+}
+
+BoonInfoFilterTextBar =
+{
+	X = game.UIData.ContextualButtonXRight-300,
+	Y = game.UIData.ContextualButtonY,
+	BottomOffset = game.UIData.ActionBarBottomOffset+40,
+	AutoAlignContextualButtons = true,
+	AutoAlignJustification = "Left",
+
+	ChildrenOrder =
+	{
+		"TextFilterType",
+		-- "TextFilterLabel",
+	},
+
+	Children =
+	{
+		TextFilterType = 
+		{
+			Graphic = "ContextualActionButton",
+			Alpha = 1.0,
+			Text = "FILTER: NONE",
+			TextArgs = game.UIData.ContextualButtonFormatLeft,
+		},
+
+		-- TextFilterLabel = 
+		-- {
+		-- 	Graphic = "ContextualActionButton",
+		-- 	Alpha = 1.0,
+		-- 	Text = "FILTER: ",
+		-- 	TextArgs = game.UIData.ContextualButtonFormatRight,
+		-- },
+	},
+}
+
+table.insert(game.ScreenData.BoonInfo.ComponentData, BoonInfoFilterButtonsBar)
+table.insert(game.ScreenData.BoonInfo.ComponentData, BoonInfoFilterTextBar)
+
+modutil.mod.Path.Wrap("BoonInfoScreenNextFilter", function(base, screen, button)
+	BoonInfoScreenNextFilter(screen, button)
+end)
+
+modutil.mod.Path.Wrap("BoonInfoScreenPreviousFilter", function(base, screen, button)
+	BoonInfoScreenPreviousFilter(screen, button)
+end)
+
+modutil.mod.Path.Context.Wrap.Static("ShowBoonInfoScreen", function(args)
+	modutil.mod.Path.Wrap("CreateScreenFromData", function(base, screen, componentData)
+		base(screen, componentData)
+		ShowBoonInfoScreen_After_CreateScreenFromData(screen)
+	end)
+end)
+
+modutil.mod.Path.Wrap("BoonInfoPopulateTraits", function(base, screen)
+	base(screen)
+	BoonInfoPopulateTraits_ApplyFilter(screen)
+end)
