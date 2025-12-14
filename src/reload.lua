@@ -9,12 +9,51 @@ function IsBoonPicked(traitName)
 	return game.HeroHasTrait(traitName)
 end
 
+---Get a lookup table of the gods met this run
+---@return table
+function GetMetGodsLookup()
+	local pickedTraits = game.CurrentRun and game.CurrentRun.PickedTraits
+	if not pickedTraits then return {} end
+
+	local gods = {}
+
+	for traitName, _ in pairs(pickedTraits) do
+		local godName = game.GetGodSourceName(traitName)
+		if godName then gods[godName] = true end
+	end
+
+	return gods
+end
+
+---Get the list of gods linked to the given boon
+---@param traitName string
+---@return [string]
+function GetGodsName(traitName)
+	local gods = {}
+
+	for _, god in pairs(game.LootData) do
+		if god.GodLoot and god.TraitIndex[traitName] then
+			table.insert(gods, god.Name)
+		end
+	end
+
+	return gods
+end
+
 ---Checks whether the god of the given boon is available (e.g., in the god pool if max reached).  
 ---@param traitName string
 ---@return boolean
 function IsBoonGodAvailable(traitName)
-	return not game.ReachedMaxGods()
-		or game.GetInteractedGodsThisRun()[game.GetGodSourceName(traitName)]
+	if not IsRunOngoing() or not game.ReachedMaxGods() then return true end
+
+	local metGods = GetMetGodsLookup()
+
+	local requiredGods = GetGodsName(traitName)
+	for _, godName in ipairs(requiredGods) do
+		if not metGods[godName] then return false end
+	end
+
+	return true
 end
 
 ---Checks whether the god is one of the Olympian (slot) boon giver
@@ -68,6 +107,12 @@ function IsBoonSlotAvailable(traitName)
 	local slotName = GetSlot(traitName)
 	return not slotName
 		or not game.HeroSlotFilled(slotName)
+end
+
+---Checks if a run is currently ongoing
+---@return boolean
+function IsRunOngoing()
+	return not game.CurrentHubRoom
 end
 
 ---Create a BoonState table with each entry representing the count of occurences of that state in<br>
