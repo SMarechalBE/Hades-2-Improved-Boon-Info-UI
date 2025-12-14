@@ -133,7 +133,8 @@ end
 ---  Those strange calculations are necessary to handle pickCountNeeded > 1 
 ---@param stateCountTable table
 ---@param pickCountNeeded integer The number of picked boons required in the table
----@return string
+---@return BoonState
+---@return BoonUnfulfilledState?
 local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
 	local pickedCount = stateCountTable.Picked and stateCountTable.Picked or 0
 	if pickedCount >= pickCountNeeded then
@@ -156,18 +157,47 @@ local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
 		pickCountNeeded = pickCountNeeded - unfulfilledCount
 	end
 
-	local godUnavailableCount = stateCountTable.GodUnavailable and stateCountTable.GodUnavailable or 0
-	if godUnavailableCount >= pickCountNeeded then
-		return BoonState.GodUnavailable
+	local slotUnavailableCount = stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable or 0
+	if slotUnavailableCount >= pickCountNeeded then
+		return BoonState.Unfulfilled, BoonUnfulfilledState.SlotUnavailable
 	else
-		pickCountNeeded = pickCountNeeded - godUnavailableCount
+		pickCountNeeded = pickCountNeeded - slotUnavailableCount
 	end
 
-	if stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable > 0 then
-		return BoonState.SlotUnavailable
+	if stateCountTable.GodUnavailable and stateCountTable.GodUnavailable >= pickCountNeeded then
+		return BoonState.Unfulfilled, BoonUnfulfilledState.GodUnavailable
 	else
 		return BoonState.Denied
 	end
+end
+
+---Compute boon state given requirement sets
+---@param requirementSets [ [string]]
+---@return BoonState
+---@return BoonUnfulfilledState?
+function GetStateFromOneFromEachSet(requirementSets)
+	local states = {}
+	local unfulfilledStates = {}
+
+	for _, requirements in ipairs(requirementSets) do
+		local stateName, unfulfilledStateName = GetStateFromStateCountTable(CreateBoonStateCountTable(requirements), 1)
+		states[stateName] = true
+		if unfulfilledStateName then unfulfilledStates[unfulfilledStateName] = true end
+	end
+	
+	-- Unavailability has more weight between sets
+	if states.Denied then return BoonState.Denied end
+	if states.Unfulfilled then
+		if unfulfilledStates.GodUnavailable then
+			return BoonState.Unfulfilled, BoonUnfulfilledState.GodUnavailable
+		elseif unfulfilledStates.SlotUnavailable then
+			return BoonState.Unfulfilled, BoonUnfulfilledState.SlotUnavailable
+		else
+			return BoonState.Unfulfilled
+		end
+	end
+
+	return BoonState.Available
 end
 
 ---Get the state of the requirements for the given requirement table. When evaluating boon states<br>
@@ -180,6 +210,7 @@ end
 ---@param requirements table
 ---@param type RequirementType
 ---@return BoonState
+---@return BoonUnfulfilledState?
 function GetRequirementState(requirements, type)
 	if not requirements then
 		return BoonState.Available
@@ -196,22 +227,12 @@ function GetRequirementState(requirements, type)
 	end
 
 	if type == RequirementType.OneFromEachSet then
-		local states = {}
-		for _, set in ipairs(requirements) do
-			local stateName = GetRequirementState(set, RequirementType.OneOf)
-			states[stateName] = (states[stateName] or 0) + 1
-		end
-		-- We prioritize unavailability for OneOfEachSet type
-		return (states.Denied and states.Denied > 0 and BoonState.Denied)
-			or (states.SlotUnavailable and states.SlotUnavailable > 0 and BoonState.SlotUnavailable)
-			or (states.GodUnavailable and states.GodUnavailable > 0 and BoonState.GodUnavailable)
-			or (states.Unfulfilled and states.Unfulfilled > 0 and BoonState.Unfulfilled)
-			or BoonState.Available
+		return GetStateFromOneFromEachSet(requirements)
 	end
 
 	modutil.mod.Print("Something went wrong when checking requirements state, wrong type passed: "
 					  .. type .. ", should be OneOf, TwoOf or OneFromEachSet")
-	return BoonState.SlotUnavailable --We shouldn't ever get here
+	return BoonState.Available --We shouldn't ever get here
 end
 
 ---Get the state of the requirements for the given boon. If multiple requirements are unavailable,<br>
@@ -219,6 +240,7 @@ end
 ---to fulfill (i.e. requires a boon sacrifice vs requires a keepsake)
 ---@param traitName string
 ---@return BoonState
+---@return BoonUnfulfilledState?
 function GetBoonRequirementState(traitName)
 	local boonRequirements = game.TraitRequirements[traitName]
 	if not boonRequirements then
@@ -226,7 +248,6 @@ function GetBoonRequirementState(traitName)
 	end
 
 	for _, type in pairs(RequirementType) do
-
 		local req = boonRequirements[type]
 		if req then
 			return GetRequirementState(req, type)
@@ -235,7 +256,7 @@ function GetBoonRequirementState(traitName)
 
 	modutil.mod.Print("Something went wrong when retrieving TraitRequirements for trait: "
 					.. traitName .. ", should have OneOf, TwoOf or OneFromEachSet")
-	return BoonState.SlotUnavailable --We shouldn't ever get here
+	return BoonState.Available --We shouldn't ever get here
 end
 
 ---Get the state of the given boon in the following order of importance:<br>
@@ -246,6 +267,7 @@ end
 --- 5. State from its requirements, see GetBoonRequirementState
 ---@param traitName string
 ---@return BoonState
+---@return BoonUnfulfilledState?
 function GetBoonState(traitName)
 	if IsBoonPicked(traitName) then
 		return BoonState.Picked
@@ -253,12 +275,16 @@ function GetBoonState(traitName)
 		return BoonState.Available
 	end
 
-	local requirementState = GetBoonRequirementState(traitName)
-	return ((IsBoonDenied(traitName) or requirementState == BoonState.Denied) and BoonState.Denied)
-		or ((not IsBoonSlotAvailable(traitName) or requirementState == BoonState.SlotUnavailable) and BoonState.SlotUnavailable)
-		or ((not IsBoonGodAvailable(traitName) or requirementState == BoonState.GodUnavailable) and BoonState.GodUnavailable)
-		or (requirementState == BoonState.Unfulfilled and BoonState.Unfulfilled)
-		or BoonState.Available
+	local requirementState, unfulfilledState = GetBoonRequirementState(traitName)
+	if IsBoonDenied(traitName) or requirementState == BoonState.Denied then
+		return BoonState.Denied
+	elseif not IsBoonGodAvailable(traitName) then
+		return BoonState.GodUnavailable
+	elseif not IsBoonSlotAvailable(traitName) then
+		return BoonState.SlotUnavailable
+	else
+		return requirementState, unfulfilledState
+	end
 end
 
 ---Retrieve the boon currently in the given slot
@@ -288,6 +314,6 @@ function GetSacrificeBoon(traitName)
 	if not sacrificeTraitName or traitName == sacrificeTraitName then
 		return nil
 	end
-	
+
 	return sacrificeTraitName
 end
