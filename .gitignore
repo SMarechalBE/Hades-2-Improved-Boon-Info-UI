@@ -10,3 +10,6 @@
 /build
 # For the Thunderstore CLI executable itself, if you include it in your root folder
 tcli.exe
+
+# vscode
+/.vscode
