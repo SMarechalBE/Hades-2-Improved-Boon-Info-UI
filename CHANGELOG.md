@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Unfulfilled nuanced states for more granularity
+
+### Changed
+
+- Gave more "availability" weight to *god unavailable* relative to *sacrifice* boons as those are theoretically always available
+
 ### Fixed
 
 - Bug with requirement heading displayed in white even when fulfilled
