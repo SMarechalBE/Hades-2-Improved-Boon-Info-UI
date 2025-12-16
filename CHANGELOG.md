@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Unfulfilled nuanced states for more granularity
+- Filtering behaviour on Boon offering pages for Olympian gods
 
 ### Changed
 
