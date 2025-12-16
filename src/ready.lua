@@ -513,14 +513,42 @@ modutil.mod.Path.Wrap("BoonInfoScreenPreviousFilter", function(base, screen, but
 	BoonInfoScreenPreviousFilter(screen, button)
 end)
 
-modutil.mod.Path.Context.Wrap.Static("ShowBoonInfoScreen", function(args)
-	modutil.mod.Path.Wrap("CreateScreenFromData", function(base, screen, componentData)
-		base(screen, componentData)
-		ShowBoonInfoScreen_After_CreateScreenFromData(screen)
-	end)
-end)
+modutil.mod.Path.Override("ShowBoonInfoScreen", function(args)
 
-modutil.mod.Path.Wrap("BoonInfoPopulateTraits", function(base, screen)
-	base(screen)
-	BoonInfoPopulateTraits_ApplyFilter(screen)
+	local screen = DeepCopyTable( ScreenData.BoonInfo )
+	screen.LootName = args.LootName
+	screen.CodexScreen = args.CodexScreen
+	screen.CodexEntryName = args.CodexEntryName
+	screen.CodexEntryData = args.CodexEntryData
+	if args.CloseFunctionName ~= nil then
+		screen.CloseFunctionName = args.CloseFunctionName
+		screen.CloseFunctionArgs = args.CloseFunctionArgs
+	end
+	OnScreenOpened( screen )
+	CreateScreenFromData( screen, screen.ComponentData )
+	-- Override start
+	InitializeFilter(screen)
+	-- Override end
+
+	local components = screen.Components
+	local sourceData = EnemyData[screen.LootName] or LootData[screen.LootName] or {}
+	ModifyTextBox({ Id = components.TitleText.Id, Text = sourceData.BoonInfoTitleText or screen.CodexEntryData.BoonInfoTitle, LuaKey = "TempTextData", LuaValue = { BoonName = screen.LootName, WeaponName = screen.CodexEntryName } })
+	
+	PlaySound({ Name = "/SFX/Menu Sounds/GeneralWhooshMENULoud" })	
+
+	if screen.CodexScreen ~= nil then
+		screen.CodexScreen.Components.CloseButton.OnPressedFunctionName = nil
+	end
+
+	-- Override start 
+	-- Moved BoonInfoPopulateTraits, CreateBoonInfoButtons, TeleportCursor
+	-- and UpdateBoonInfoPageButtons inside RefreshBoons
+	-- Maybe when ModUtil.Path.Context is fixed, this could be dealt with in a cleaner way ?
+	RefreshBoons(screen)
+	-- Override end
+
+	screen.KeepOpen = true
+	screen.CanClose = true
+	HandleScreenInput( screen )
+
 end)

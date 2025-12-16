@@ -327,10 +327,10 @@ local Context =
 		{
 			Order =
 			{
-				"Available",
-				"Unfulfilled",
-				"Unavailable",
-				"All",
+				"Available", -- 1
+				"Unfulfilled", -- 2
+				"Unavailable", -- 3
+				"All", -- 4
 			},
 
 			All =
@@ -381,18 +381,32 @@ local Context =
 			},
 
 		},
-
-		CurrentIndex = 1,
+		CurrentIndex = 2,
 	},
 }
 
+function GetStartingFilterIndex(godName)
+	if godName == "PlayerUnit" then
+		return 2 -- Show unfulfilled by default for Melinoe (dirty dependency hack)
+	end
+
+	local metGodsLookup = GetMetGodsLookup()
+	if metGodsLookup[godName] then
+		return 1 -- Show available by default for met gods
+	else
+		return 3 -- Show unavailable for other gods
+	end
+end
+
 function BoonInfoScreenNextFilter( screen, button )
 	SetFilter(Context.Filter.CurrentIndex + 1, screen)
+	RefreshBoons(screen)
 	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
 end
 
 function BoonInfoScreenPreviousFilter( screen, button )
 	SetFilter(Context.Filter.CurrentIndex - 1, screen)
+	RefreshBoons(screen)
 	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
 end
 
@@ -420,12 +434,13 @@ function GetCurrentFilterAllowedStates()
 	return filter and Context.Filter.Values[filter].StatesAllowed
 end
 
-function ApplyFilter(screen)
-	-- We can't simply call ShowBoonInfoScreen because of recursion, I'm not fluent enough in Lua to
-	-- know what to do to avoid this
-	BoonInfoPopulateTraits( screen ) -- Only do the rest below if #traitList > 0 ?
+function RefreshBoons(screen)
+	game.BoonInfoPopulateTraits( screen )
+	ApplyFilter(screen)
 	game.CreateBoonInfoButtons( screen )
-	game.TeleportCursor({ DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id, ForceUseCheck = true })
+	if #screen.TraitList > 0 then
+		game.TeleportCursor({ DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id, ForceUseCheck = true })
+	end
 	game.UpdateBoonInfoPageButtons( screen )
 end
 
@@ -453,11 +468,9 @@ function SetFilter(index, screen)
 	if nextFilterId then
 		SetComponent(nextFilterId, GetFilterValue(index + 1))
 	end
-
-	ApplyFilter(screen)
 end
 
-function ShowBoonInfoScreen_After_CreateScreenFromData(screen)
+function InitializeFilter(screen)
 	local components = screen and screen.Components
 	if not components then return end
 
@@ -468,10 +481,10 @@ function ShowBoonInfoScreen_After_CreateScreenFromData(screen)
 		return
 	end
 
-	SetFilter(1, screen)
+	SetFilter(GetStartingFilterIndex(screen.LootName), screen)
 end
 
-function BoonInfoPopulateTraits_ApplyFilter(screen)
+function ApplyFilter(screen)
 	if not IsSlotGiver(screen.LootName) then return end
 
 	local allowedStates = GetCurrentFilterAllowedStates()
