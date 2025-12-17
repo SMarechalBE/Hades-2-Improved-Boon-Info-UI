@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-12-17
+
 ### Added
 
 - Unfulfilled nuanced states for more granularity
@@ -14,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Gave more "availability" weight to *god unavailable* relative to *sacrifice* boons as those are theoretically always available
+- Gave more "availability" weight to _god unavailable_ relative to _sacrifice_ boons as those are theoretically always available
 
 ### Fixed
 
@@ -61,7 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First version of the mod!
 
-[unreleased]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.3.0...HEAD
+[unreleased]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.3.0...1.0.0
 [0.3.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.2.1...0.3.0
 [0.2.1]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.1.0...0.2.0
