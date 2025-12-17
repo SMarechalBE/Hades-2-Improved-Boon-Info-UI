@@ -29,10 +29,10 @@ This approach makes it immediately obvious:
 
 ## Boon button
 
-![Boon picked](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonPicked.jpg)
-![Boon sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonSacrifice.jpg)
-![Boon unfulfilled](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnfulfilled.jpg)
-![Boon unavailable](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnavailable.jpg)
+![Boon picked](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonPicked.png)
+![Boon sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonSacrifice.png)
+![Boon unfulfilled](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnfulfilled.png)
+![Boon unavailable](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnavailable.png)
 
 Boon buttons have been changed in Codex pages to give more information on their current availability state:
 - **picked**: title is colored in *light green*, the same color as when a requirement is fulfilled,
@@ -72,12 +72,12 @@ Then for the others, the coloring applies the same logic as above. *Unfulfilled 
 
 ## Page filtering
 
-![Filter buttons](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterButtons.jpg)
-
 For even more granularity on the displayed information, extra controls (LB/RB, left/right arrows) have been added to the offering pages allowing to filter boons displayed
 based on their current category.
 
-![Filter available](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterAvailable.jpg)
+![Filter buttons](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterButtons.png)
+
+![Filter available](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterAvailable.png)
 
 Current filter pages are the following in this order: 
 - **AVAILABLE**: only show available and sacrifice boons,
