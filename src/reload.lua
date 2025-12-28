@@ -14,7 +14,7 @@ end
 function GetMetGodsLookup()
 
 	local gods = {}
-	for _, godName in pairs( GetInteractedGodsThisRun() ) do
+	for _, godName in pairs( game.GetInteractedGodsThisRun() ) do
 		gods[godName] = true
 	end
 
