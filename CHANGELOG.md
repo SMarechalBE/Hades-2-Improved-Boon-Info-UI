@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - Configuration parameter for default availability logic of sacrifice boons
+
+### Changed
+
+- Default availability logic for sacrifice boons is now always unavailable
 
 ## [1.0.1] - 2025-12-17
 
