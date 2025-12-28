@@ -137,32 +137,25 @@ end
 ---@return BoonState
 ---@return BoonUnfulfilledState?
 local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
-	local pickedCount = stateCountTable.Picked and stateCountTable.Picked or 0
-	if pickedCount >= pickCountNeeded then
+
+	pickCountNeeded = pickCountNeeded - (stateCountTable.Picked and stateCountTable.Picked or 0)
+	if pickCountNeeded < 1 then
 		return BoonState.Available -- requirement is fulfilled, so boon is available
-	else
-		pickCountNeeded = pickCountNeeded - pickedCount -- Adjust pickCountNeeded with what we have picked already
 	end
-
-	local availableCount = stateCountTable.Available and stateCountTable.Available or 0
-	if availableCount >= pickCountNeeded then
+	
+	pickCountNeeded = pickCountNeeded - (stateCountTable.Available and stateCountTable.Available or 0)
+	if pickCountNeeded < 1 then
 		return BoonState.Unfulfilled
-	else
-		pickCountNeeded = pickCountNeeded - availableCount
 	end
 
-	local unfulfilledCount = stateCountTable.Unfulfilled and stateCountTable.Unfulfilled or 0
-	if unfulfilledCount >= pickCountNeeded then
+	pickCountNeeded = pickCountNeeded - (stateCountTable.Unfulfilled and stateCountTable.Unfulfilled or 0)
+	if pickCountNeeded < 1 then
 		return BoonState.Unfulfilled
-	else
-		pickCountNeeded = pickCountNeeded - unfulfilledCount
 	end
 
-	local slotUnavailableCount = stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable or 0
-	if slotUnavailableCount >= pickCountNeeded then
+	pickCountNeeded = pickCountNeeded - (stateCountTable.SlotUnavailable and stateCountTable.SlotUnavailable or 0)
+	if pickCountNeeded < 1 then
 		return BoonState.Unfulfilled, BoonUnfulfilledState.SlotUnavailable
-	else
-		pickCountNeeded = pickCountNeeded - slotUnavailableCount
 	end
 
 	if stateCountTable.GodUnavailable and stateCountTable.GodUnavailable >= pickCountNeeded then
@@ -385,6 +378,7 @@ local Context =
 		CurrentIndex = 2,
 	},
 }
+
 
 function GetStartingFilterIndex(godName)
 	if godName == "PlayerUnit" then
