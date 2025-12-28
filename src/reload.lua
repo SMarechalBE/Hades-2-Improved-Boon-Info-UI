@@ -122,7 +122,8 @@ end
 local function CreateBoonStateCountTable(traits)
 	local states = {}
 	for _, traitName in ipairs(traits) do
-		local stateName = GetBoonState(traitName)
+		local stateName, unfulfilledStateName = GetBoonState(traitName)
+		if unfulfilledStateName then stateName = unfulfilledStateName end
 		states[stateName] = (states[stateName] or 0) + 1
 	end
 
@@ -492,9 +493,9 @@ function ApplyFilter(screen)
 
 	local filteredTraitList = {}
 	for _, traitName in ipairs(screen.TraitList) do
-		local boonState = GetBoonState(traitName)
-		for _, state in ipairs(allowedStates) do
-			if boonState == state then
+		local boonState, unfulfilledBoonState = GetBoonState(traitName)
+		for _, state in pairs(allowedStates) do
+			if (unfulfilledBoonState or boonState) == state then
 				table.insert(filteredTraitList, traitName)
 			end
 		end
