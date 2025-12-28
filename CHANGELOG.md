@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Out of pool gods now correctly displayed as in-pool when currently being offered
+- Issue with some unavailable duo boons that were wrongly displayed as unfulfilled
 
 ## [1.0.1] - 2025-12-17
 
