@@ -12,14 +12,10 @@ end
 ---Get a lookup table of the gods met this run
 ---@return table
 function GetMetGodsLookup()
-	local pickedTraits = game.CurrentRun and game.CurrentRun.PickedTraits
-	if not pickedTraits then return {} end
 
 	local gods = {}
-
-	for traitName, _ in pairs(pickedTraits) do
-		local godName = game.GetGodSourceName(traitName)
-		if godName then gods[godName] = true end
+	for _, godName in pairs( GetInteractedGodsThisRun() ) do
+		gods[godName] = true
 	end
 
 	return gods
