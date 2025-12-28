@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Default availability logic for sacrifice boons is now always unavailable
 
+### Fixed
+
+- Out of pool gods now correctly displayed as in-pool when currently being offered
+
 ## [1.0.1] - 2025-12-17
 
 ### Fixed
