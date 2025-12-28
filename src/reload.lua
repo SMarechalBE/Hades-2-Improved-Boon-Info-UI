@@ -353,7 +353,7 @@ local Context =
 				StatesAllowed =
 				{
 					BoonState.Available,
-					BoonState.SlotUnavailable,
+					config.sacrificeBoonsAlwaysAsAvailable and BoonState.SlotUnavailable or nil,
 				}
 			},
 
@@ -363,7 +363,7 @@ local Context =
 				StatesAllowed =
 				{
 					BoonState.Available,
-					BoonState.SlotUnavailable,
+					config.sacrificeBoonsAlwaysAsAvailable and BoonState.SlotUnavailable or nil,
 					BoonState.Unfulfilled,
 				}
 			},
