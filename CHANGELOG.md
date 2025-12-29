@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Default availability logic for sacrifice boons is now always unavailable
+- Improved duo boon unavailability logic to trigger only when both gods wouldn't fit into god pool
 
 ### Fixed
 
