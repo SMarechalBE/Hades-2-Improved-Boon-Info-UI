@@ -58,7 +58,7 @@ When looking at requirements for a given boon, the only information we get is:
 
 ### Modded
 
-![Requirements](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/Requirements.jpg)
+![Requirements](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/Requirements.png)
 
 Headings coloring is now changed as well, based on the availability of the required boons:
 - *light green*: same as before, a required boon is picked,
