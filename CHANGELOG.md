@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-12-29
+
 ### Added
 
 - Configuration parameter for default availability logic of sacrifice boons
@@ -83,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First version of the mod!
 
-[unreleased]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/1.0.1...HEAD
+[unreleased]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.3.0...1.0.0
 [0.3.0]: https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/compare/0.2.1...0.3.0

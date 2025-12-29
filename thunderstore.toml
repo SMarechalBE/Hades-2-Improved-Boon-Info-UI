@@ -5,7 +5,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "SMarBe"
 name = "Improved_Boon_Info_UI"
-versionNumber = "1.0.1"
+versionNumber = "1.1.0"
 description = "Improves the boon requirement UI by adding clear colors that show which boons are already picked, available, or unavailable due to requirements."
 websiteUrl = "https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI"
 containsNsfwContent = false
