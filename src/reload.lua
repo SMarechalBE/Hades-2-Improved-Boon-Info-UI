@@ -36,20 +36,28 @@ function GetGodsName(traitName)
 	return gods
 end
 
----Checks whether the god of the given boon is available (e.g., in the god pool if max reached).  
+---Checks whether the gods of the given boon is available (e.g., in the god pool if max reached).
+---Note: for duo boons it is additionally checked if both gods fit in the god pool.  
 ---@param traitName string
 ---@return boolean
 function IsBoonGodAvailable(traitName)
-	if not IsRunOngoing() or not game.ReachedMaxGods() then return true end
+	if not IsRunOngoing() then return true end
 
 	local metGods = GetMetGodsLookup()
 
+	local emptyGodPoolSlot = (CurrentRun.MaxGodsPerRun or HeroData.MaxGodsPerRun) - game.TableLength(metGods)
+	if emptyGodPoolSlot < 0 then emptyGodPoolSlot = 0 end
+
 	local requiredGods = GetGodsName(traitName)
+
+	local requiredGodsCount = #requiredGods
+	if emptyGodPoolSlot >= requiredGodsCount then return true end
+
 	for _, godName in ipairs(requiredGods) do
-		if not metGods[godName] then return false end
+		if metGods[godName] then requiredGodsCount = requiredGodsCount - 1 end
 	end
 
-	return true
+	return emptyGodPoolSlot >= requiredGodsCount
 end
 
 ---Checks whether the god is one of the Olympian (slot) boon giver
