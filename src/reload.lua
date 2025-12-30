@@ -14,8 +14,10 @@ end
 function GetMetGodsLookup()
 
 	local gods = {}
-	for _, godName in pairs( game.GetInteractedGodsThisRun() ) do
-		gods[godName] = true
+	if IsRunOngoing() then
+		for _, godName in pairs( game.GetInteractedGodsThisRun() ) do
+			gods[godName] = true
+		end
 	end
 
 	return gods
