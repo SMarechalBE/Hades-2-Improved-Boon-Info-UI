@@ -34,23 +34,29 @@ This approach makes it immediately obvious:
 ![Boon unfulfilled](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnfulfilled.png)
 ![Boon unavailable](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/BoonUnavailable.png)
 
+
 Boon buttons have been changed in Codex pages to give more information on their current availability state:
 - **picked**: title is colored in *light green*, the same color as when a requirement is fulfilled,
 - **available**: unchanged, uses classic rarity color,
 - **sacrifice**: title is colored in *dark red* and the current boon using the slot is shown in a similar way as if it appeared in an offering,
 - **unfulfilled**: same color as available boons but with half transparency (see screenshot above),
 - **unavailable**: title is colored in *dark blue* as long as the god pool is full and that the god is out of it,
-- **denied**: the full banned is still using the same style with chains, only difference is the title has the same behaviour than unfulfilled ones.
+- **banned**: the full banned is still using the same style with chains, only difference is the title has the same behaviour than unfulfilled ones.
+
+### Inherited state
+
+If a boon has requirements that are unavailable/banned and thus make it impossible to pick it up is now explicitly shown. 
+
+![Boon inherited ban](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/InheritedBannedReq.png)
+
+In this example, both Apollo's attack and special boons are banned, making it impossible to pick up the legendary. 
+
 
 ## Requirements listing
 
-Default            |  Modded
--|-
-![Requirements default - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReqBefore.jpg)  |  ![Requirements modded - sacrifice](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/SacrificeReq.jpg)
-![Requirements default - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReqBefore.jpg)  |  ![Requirements modded - keepsake](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/KeepsakeReq.jpg)
-![Requirements default - vow of denial](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/DeniedReqBefore.jpg)  |  ![Requirements modded - vow of denial](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/DeniedReq.jpg)
-
 ### Default
+
+![Requirements default](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/InheritedBannedReqBefore.png)
 
 When looking at requirements for a given boon, the only information we get is:
 - a boon in the requirements is picked: boon name colored in *white* instead of *grey*,
@@ -58,7 +64,7 @@ When looking at requirements for a given boon, the only information we get is:
 
 ### Modded
 
-![Requirements](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/Requirements.png)
+![Requirements - sac](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/Requirements.png)
 
 Headings coloring is now changed as well, based on the availability of the required boons:
 - *light green*: same as before, a required boon is picked,
@@ -70,20 +76,31 @@ Headings coloring is now changed as well, based on the availability of the requi
 Boons inside listing follow the same coloring scheme as default for available and picked ones. 
 Then for the others, the coloring applies the same logic as above. *Unfulfilled boons also have even more transparency than unpicked ones*.
 
+![Requirements - pinned and banned](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/RequirementsPinnedBanned.png)
+
+Icons for pinned and banned boons are also displayed at the beginning of each line if elligible.
+
 ## Page filtering
+
+![Filter buttons](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterButtons.png)
 
 For even more granularity on the displayed information, extra controls (LB/RB, left/right arrows) have been added to the offering pages allowing to filter boons displayed
 based on their current category.
 
-![Filter buttons](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterButtons.png)
-
 ![Filter available](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/FilterAvailable.png)
 
 Current filter pages are the following in this order: 
-- **AVAILABLE**: only show available and sacrifice boons,
-- **UNFULFILLED**: adds unfulfilled requirements boons,
-- **UNAVAILABLE**: adds boons from gods out of current pool,
+- **AVAILABLE**: only show available boons,
+- **UNFULFILLED**: adds boons with unfulfilled (but still possible) requirements,
+- **UNAVAILABLE**: adds boons from gods out of current pool and sacrifice boons,
 - **ALL**: adds picked and banned boons.
+
+## Configuration
+
+Multiple parameters can be configured if you desire extra customization:
+- `sacrificeBoonsAlwaysAsAvailable` (Default = **False**) : controls whether sacrifice/replacement boons are always considered as available. This can be useful if you often use vow of denial as those will appear more often,
+- `enablePinnedBoonsIconInRequirements` (Default = **True**) : controls whether pin icon is displayed next to pinned/tracked boons in the requirements list,
+- `enableBannedBoonsIconInRequirements` (Default = **True**) : controls whether locked icon is displayed next to banned boons in the requirements list,
 
 ## Highly suggested: [Run Boon Overview](https://thunderstore.io/c/hades-ii/p/SMarBe/Run_Boon_Overview/)
 
