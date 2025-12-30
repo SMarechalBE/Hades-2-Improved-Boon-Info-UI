@@ -405,10 +405,16 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "QuestLogScreenStrikethrough", Alpha = 1.0 })
 				table.insert( screen.TraitRequirements, strikeThrough.Id )
 				Attach({ Id = strikeThrough.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetY = startY, OffsetX = 200})
+
+				-- Maybe it could be scaled to the actual text size, but we need to retrieve localized text for this
+				-- SetScaleX({ Id = strikeThrough.Id, Fraction = string.len(traitData.Name) / 10 })
 			end
 
-			-- Maybe it could be scaled to the actual text size, but we need to retrieve localized text for this
-			-- SetScaleX({ Id = strikeThrough.Id, Fraction = string.len(traitData.Name) / 10 })
+			if game.HasStoreItemPin(traitName) then
+				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "RotatedPinIcon", Scale = 0.35, Alpha = 1.0 })	
+				table.insert( screen.TraitRequirements, pinned.Id )
+				Attach({ Id = pinned.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 10, OffsetY = startY + 1 })
+			end
 
 			-- override END
 			--#region CreateTraitRequirementList
@@ -569,4 +575,20 @@ modutil.mod.Path.Override("ShowBoonInfoScreen", function(args)
 	screen.CanClose = true
 	HandleScreenInput( screen )
 
+end)
+
+function sjson_AddRotatedPinnedIcon(data)
+	local bulletPointPinned =
+	{
+		Name = "RotatedPinIcon",
+		FilePath = "GUI\\Icons\\Reminder",
+		Material = "Unlit"
+	}
+	local order = {"Name", "FilePath", "Material"}
+	table.insert(data.Animations, sjson.to_object(bulletPointPinned, order))
+end
+
+local vfxFile = rom.path.combine(rom.paths.Content, 'Game/Animations/GUI_Screens_VFX.sjson')
+sjson.hook(vfxFile, function(data)
+	return sjson_AddRotatedPinnedIcon(data)
 end)

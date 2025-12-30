@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Banned boons are now struck through in requirement lists for improved clarity
+- Tracked/pinned boons are now explicitly shown in the requirements lists
 
 ### Fixed
 
