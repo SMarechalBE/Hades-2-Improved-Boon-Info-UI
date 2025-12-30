@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Banned boons are now struck through in requirement lists for improved clarity
+
 ### Fixed
 
 - Small issue with default filter wrongly applied when out of a run
