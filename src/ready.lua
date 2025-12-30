@@ -2,6 +2,31 @@
 -- globals we define are private to our plugin!
 ---@diagnostic disable: lowercase-global
 
+--#region SJSON hook
+
+---Add Pin Icon as an animation in VFX
+
+local bulletPointPinIconAnimationName = "BulletPointPinIcon"
+
+function sjson_BulletPointPinIcon(data)
+	local bulletPointPinned =
+	{
+		Name = bulletPointPinIconAnimationName,
+		FilePath = "GUI\\Icons\\Reminder",
+		Material = "Unlit" -- Not sure what this is for
+	}
+	local order = {"Name", "FilePath", "Material"}
+	table.insert(data.Animations, sjson.to_object(bulletPointPinned, order))
+end
+
+local vfxFile = rom.path.combine(rom.paths.Content, 'Game/Animations/GUI_Screens_VFX.sjson')
+sjson.hook(vfxFile, function(data)
+	return sjson_BulletPointPinIcon(data)
+end)
+
+--#endregion SJSON hook
+
+--#region definitions
 ---@enum BoonState
 BoonState =
 {
@@ -27,6 +52,9 @@ RequirementType =
 	TwoOf = "TwoOf",
 	OneFromEachSet = "OneFromEachSet",
 }
+--#endregion definitions
+
+--#region style
 
 local function ChangeAlpha(color, alpha)
 	local newColor = game.ShallowCopyTable(color)
@@ -110,7 +138,9 @@ BoonSlotGivers = {
 	"PlayerUnit", -- Enable it with Run Boon Overview (though this is not great pattern as it is hidden)
 }
 
-local bulletPointPinIconAnimationName = "BulletPointPinIcon"
+--#endregion style
+
+--#region BoonInfo UI
 
 modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, index)
 	--#region CreateBoonInfoButton
@@ -326,7 +356,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	local traitToReplace = GetSacrificeBoon(traitName)
 	if traitToReplace ~= nil then
 
-		screen.TraitToReplaceName = traitToReplace
+		screen.TraitToReplaceName = traitToReplace -- Seems unnecessary, not sure why I added this
 
 		local exchangeSymbol = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.ExchangeSymbol.Scale })
 		table.insert( traitInfo.Components, exchangeSymbol )
@@ -444,6 +474,9 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	--#endregion CreateTraitRequirementList
 end)
 
+--#endregion BoonInfo UI
+
+--#region Filtering
 
 BoonInfoFilterButtonsBar =
 {
@@ -576,19 +609,4 @@ modutil.mod.Path.Override("ShowBoonInfoScreen", function(args)
 
 end)
 
----Add Pin Icon as an animation in VFX
-function sjson_BulletPointPinIcon(data)
-	local bulletPointPinned =
-	{
-		Name = bulletPointPinIconAnimationName,
-		FilePath = "GUI\\Icons\\Reminder",
-		Material = "Unlit" -- Not sure what this is for
-	}
-	local order = {"Name", "FilePath", "Material"}
-	table.insert(data.Animations, sjson.to_object(bulletPointPinned, order))
-end
-
-local vfxFile = rom.path.combine(rom.paths.Content, 'Game/Animations/GUI_Screens_VFX.sjson')
-sjson.hook(vfxFile, function(data)
-	return sjson_BulletPointPinIcon(data)
-end)
+--#endregion Filtering
