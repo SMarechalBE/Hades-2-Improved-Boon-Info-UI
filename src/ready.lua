@@ -110,6 +110,7 @@ BoonSlotGivers = {
 	"PlayerUnit", -- Enable it with Run Boon Overview (though this is not great pattern as it is hidden)
 }
 
+local bulletPointPinIconAnimationName = "BulletPointPinIcon"
 
 modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, index)
 	--#region CreateBoonInfoButton
@@ -402,7 +403,7 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 
 			-- Add pin icon for pinned/tracked boons if elligible
 			if config.enablePinnedBoonsIconInRequirements and game.HasStoreItemPin(traitName) then
-				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "RotatedPinIcon", Scale = 0.35, Alpha = 1.0 })	
+				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = bulletPointPinIconAnimationName, Scale = 0.35, Alpha = 1.0 })
 				table.insert( screen.TraitRequirements, pinned.Id )
 				Attach({ Id = pinned.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 10, OffsetY = startY + 1 })
 			end
@@ -575,12 +576,13 @@ modutil.mod.Path.Override("ShowBoonInfoScreen", function(args)
 
 end)
 
-function sjson_AddRotatedPinnedIcon(data)
+---Add Pin Icon as an animation in VFX
+function sjson_BulletPointPinIcon(data)
 	local bulletPointPinned =
 	{
-		Name = "RotatedPinIcon",
+		Name = bulletPointPinIconAnimationName,
 		FilePath = "GUI\\Icons\\Reminder",
-		Material = "Unlit"
+		Material = "Unlit" -- Not sure what this is for
 	}
 	local order = {"Name", "FilePath", "Material"}
 	table.insert(data.Animations, sjson.to_object(bulletPointPinned, order))
@@ -588,5 +590,5 @@ end
 
 local vfxFile = rom.path.combine(rom.paths.Content, 'Game/Animations/GUI_Screens_VFX.sjson')
 sjson.hook(vfxFile, function(data)
-	return sjson_AddRotatedPinnedIcon(data)
+	return sjson_BulletPointPinIcon(data)
 end)
