@@ -63,58 +63,138 @@ local function ChangeAlpha(color, alpha)
 	return newColor
 end
 
-BoonColors = {}
-
-BoonColors.State =
+local GreyishColor = { 52, 48, 58, 185 }
+local BaseColor =
 {
-	Picked = Color.BoonInfoAcquired,
 	SlotUnavailable = Color.BonesUnaffordable,
 	GodUnavailable = Color.BonesLocked,
-	-- Available = rarity
-	-- Unfulfilled: rarity with lower alpha
-	-- Denied = rarity with lower alpha
+	Denied = Color.BonesInactive,
+	Picked = Color.BoonInfoAcquired
 }
-
-BoonColors.Requirement = {}
-
-BoonColors.Requirement.Header =
+local BaseAlpha =
 {
-	Available = BoonColors.State.Picked,
-	Unfulfilled = Color.White,
-	SlotUnavailable = BoonColors.State.SlotUnavailable,
-	GodUnavailable = BoonColors.State.GodUnavailable,
-	Denied = Color.BonesInactive, -- black-ish
+	Full = 255,
+	AlmostFull = 185,
+	UnfulfilledRarity = 120,
+	Unfulfilled = 50,
 }
 
-local GreyishColor = { 52, 48, 58, 185 }
-BoonColors.Requirement.BulletList =
+BoonColors =
 {
-	Picked = Color.White,
-	SlotUnavailable = ChangeAlpha(BoonColors.State.SlotUnavailable, 185),
-	GodUnavailable = ChangeAlpha(BoonColors.State.GodUnavailable, 185),
-	Available = GreyishColor,
-	Unfulfilled = ChangeAlpha(GreyishColor, 50),
-	Denied = ChangeAlpha(BoonColors.Requirement.Header.Denied, 185),
+	Title =
+	{
+		Value =
+		{
+			Picked = BaseColor.Picked,
+			SlotUnavailable = BaseColor.SlotUnavailable,
+			GodUnavailable = BaseColor.GodUnavailable,
+		},
+		Alpha =
+		{
+			Default = BaseAlpha.Full,
+
+			Available = BaseAlpha.Full,
+			Unfulfilled = BaseAlpha.UnfulfilledRarity,
+			Denied = BaseAlpha.UnfulfilledRarity,
+		},
+	},
+	Requirement =
+	{
+		Header =
+		{
+			Available = BaseColor.Picked,
+			Unfulfilled = Color.White,
+			SlotUnavailable = BaseColor.SlotUnavailable,
+			GodUnavailable = BaseColor.GodUnavailable,
+			Denied = BaseColor.Denied, -- black-ish
+		},
+		BulletList =
+		{
+			Picked = Color.White,
+			SlotUnavailable = ChangeAlpha(BaseColor.SlotUnavailable, BaseAlpha.AlmostFull),
+			GodUnavailable = ChangeAlpha(BaseColor.GodUnavailable, BaseAlpha.AlmostFull),
+			Available = GreyishColor,
+			Unfulfilled = ChangeAlpha(GreyishColor, BaseAlpha.Unfulfilled),
+			Denied = ChangeAlpha(BaseColor.Denied, BaseAlpha.AlmostFull),
+		},
+		Shadow =
+		{
+			Color =
+			{
+				Default = {0, 0, 0, 1},
+			},
+			Offset =
+			{
+				Default = {0, 1},
+
+				Available = {0, 0},
+				Unfulfilled = {0, 0},
+				Denied = {0, 0},
+			},
+		},
+	},
 }
 
-ShadowOffsetBulletList =
+-- Init colors from the config override values
+for state, styleData in pairs(config.AvailabilityStyle) do
+	if styleData.Enable then
+		local buttonTitle = styleData.ButtonTitle
+		if buttonTitle.Color.Override and buttonTitle.Color.Value then
+			BoonColors.Title.Value[state] = buttonTitle.Color.Value
+		end
+		if buttonTitle.Alpha.Override and buttonTitle.Alpha.Value then
+			BoonColors.Title.Alpha[state] = buttonTitle.Alpha.Value
+		end
+
+		local bulletList = styleData.BulletList
+		if bulletList.Color.Override and bulletList.Color.Value then
+			BoonColors.Requirement.BulletList[state] = bulletList.Color.Value
+		end
+		if bulletList.Alpha.Override and bulletList.Alpha.Value then
+			BoonColors.Requirement.BulletList[state] = ChangeAlpha(BoonColors.Requirement.BulletList[state], bulletList.Alpha.Value)
+		end
+
+		local shadow = bulletList.Shadow
+		if shadow.Color.Override and shadow.Color.Value then
+			BoonColors.Requirement.Shadow.Color[state] = shadow.Color.Value
+		end
+		if shadow.Offset.Override and shadow.Offset.Value then
+			BoonColors.Requirement.Shadow.Offset[state] = shadow.Offset.Value
+		end
+
+		local header = styleData.Header
+		if header and header.Color.Override and header.Color.Value then
+			BoonColors.Requirement.Header[state] = header.Color.Value
+		end
+		if header and header.Alpha.Override and header.Alpha.Value then
+			BoonColors.Requirement.Header[state] = ChangeAlpha(BoonColors.Requirement.Header[state], header.Alpha.Value)
+		end
+	end
+end
+
+local function GetTitleColor(state, colorOverride)
+	local color = BoonColors.Title.Value[state] or colorOverride or game.Color.White
+	local alpha = BoonColors.Title.Alpha[state] or BoonColors.Title.Alpha.Default
+
+	return ChangeAlpha(color, alpha)
+end
+
+local Icons =
 {
-	Picked = {0, 1},
-	SlotUnavailable = {0, 1},
-	GodUnavailable = {0, 1},
-	Available = {0, 0},
-	Unfulfilled = {0, 0},
-	Denied = {0, 0},
+	Scale = 0.35,
+	Alpha = 1.0,
 }
 
-local function CreateListRequirementFormatTableWithColor(color, shadowOffset)
+local function CreateListRequirementFormatTableWithColor(state)
 	return {
 		Text = "BoonInfo_BulletPoint",
 		FontSize = 22,
 		OffsetX = 30,
-		Color = color,
+		Color = BoonColors.Requirement.BulletList[state] or GreyishColor,
 		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset = shadowOffset or {0, 1},
+		ShadowBlur = 0,
+		ShadowColor = BoonColors.Requirement.Shadow.Color[state] or BoonColors.Requirement.Shadow.Color.Default,
+		ShadowOffset = BoonColors.Requirement.Shadow.Offset[state] or BoonColors.Requirement.Shadow.Offset.Default,
 		Justification = "Left",
 		LuaKey = "TempTextData",
 		DataProperties =
@@ -201,13 +281,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	-- override start
 	-- We retrieve boon state from GetBoonState, then retrieve the corresponding color
 	local boonState = GetBoonState(traitName)
-	if boonState == BoonState.Available then
-		titleText.Color = rarityColor
-	elseif boonState == BoonState.Unfulfilled or boonState == BoonState.Denied then
-		titleText.Color = ChangeAlpha(rarityColor, 120)
-	else
-		titleText.Color = BoonColors.State[boonState]
-	end
+	titleText.Color = GetTitleColor(boonState, rarityColor)
 	-- override end
 	--#region CreateBoonInfoButton
 	CreateTextBox( titleText )
@@ -431,18 +505,18 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 			-- override START
 			local reqBoonState = GetBoonState(traitName)
 			-- Create bullet point
-			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[reqBoonState], ShadowOffsetBulletList[reqBoonState])
+			local listRequirementFormat = CreateListRequirementFormatTableWithColor(reqBoonState)
 
 			-- Add pin icon for pinned/tracked boons if elligible
-			if config.enablePinnedBoonsIconInRequirements and game.HasStoreItemPin(traitName) then
-				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = bulletPointPinIconAnimationName, Scale = 0.35, Alpha = 1.0 })
+			if config.IconInRequirements.Pinned.Enable and game.HasStoreItemPin(traitName) then
+				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = bulletPointPinIconAnimationName, Scale = Icons.Scale, Alpha = Icons.Alpha })
 				table.insert( screen.TraitRequirements, pinned.Id )
 				Attach({ Id = pinned.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 10, OffsetY = startY + 1 })
 			end
 
 			-- Add locked icon for banned boons if elligible
-			if config.enableBannedBoonsIconInRequirements and reqBoonState == BoonState.Denied then
-				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "LockedKeepsakeIcon", Scale = 0.35, Alpha = 1 })	
+			if config.IconInRequirements.Banned.Enable and reqBoonState == BoonState.Denied then
+				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "LockedKeepsakeIcon", Scale = Icons.Scale, Alpha = Icons.Alpha })
 				table.insert( screen.TraitRequirements, strikeThrough.Id )
 				Attach({ Id = strikeThrough.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 12, OffsetY = startY + 1 })
 			end
