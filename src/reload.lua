@@ -276,7 +276,10 @@ function GetBoonState(traitName)
 	end
 
 	local requirementState, unfulfilledState = GetBoonRequirementState(traitName)
-	if IsBoonDenied(traitName) or requirementState == BoonState.Denied then
+	local traitToReplace = GetSacrificeBoon(traitName)
+	local traitToReplaceData = traitToReplace and game.GetHeroTrait(traitToReplace)
+	local traitToReplaceRarity = traitToReplaceData and traitToReplaceData.Rarity
+	if IsBoonDenied(traitName) or requirementState == BoonState.Denied or (config.unreplaceableSacrificeBoonsAsBanned and traitToReplaceRarity == "Heroic") then
 		return BoonState.Denied
 	elseif not IsBoonGodAvailable(traitName) then
 		return BoonState.GodUnavailable

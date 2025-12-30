@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Set sacrifice boons as banned if the current boon rarity for the slot is Heroic as it can't ever be offered unless sold.
+
 ### Fixed
 
 - Sacrifice boons now display their current rarity icon in boon info page.
