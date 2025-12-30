@@ -371,7 +371,9 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 		local exchangeIconFrame = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray_Overlay", Scale = screenData.Icon.Scale * screenData.ExchangeIconScale })		
 		table.insert( traitInfo.Components, exchangeIconFrame )
 		Attach({ Id = exchangeIconFrame.Id, DestinationId = traitInfo.PurchaseButton.Id, OffsetX = screenData.ExchangeIconOffsetX, OffsetY = screenData.ExchangeIconOffsetY })
-		SetAnimation({ DestinationId = exchangeIconFrame.Id, Name = "BoonIcon_Frame_Rare" })
+		local traitToReplaceData = GetHeroTrait(traitToReplace)
+		local traitToReplaceRarity = traitToReplaceData and traitToReplaceData.Rarity or "Rare" -- Fallback to rare just in case
+		SetAnimation({ DestinationId = exchangeIconFrame.Id, Name = "BoonIcon_Frame_" .. traitToReplaceRarity })
 	end
 	-- override end
 	
