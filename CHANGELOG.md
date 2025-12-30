@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Banned boons are now struck through in requirement lists for improved clarity
-- Tracked/pinned boons are now explicitly shown in the requirements lists
+- Banned boons are now prefixed with a lock icon in requirement lists. 
+- Tracked/pinned boons are now prefixed with a pin icon in the requirements lists
+- The icons above can be separately disabled in configuration. Both defaults to enabled.  
 
 ### Fixed
 
