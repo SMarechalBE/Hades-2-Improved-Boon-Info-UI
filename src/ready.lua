@@ -112,6 +112,7 @@ BoonSlotGivers = {
 
 
 modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, index)
+	--#region CreateBoonInfoButton
 	local screenData = ScreenData.UpgradeChoice
 
 	local traitInfo = {}
@@ -165,6 +166,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	titleText.Id = traitInfo.TitleBox.Id
 	titleText.Text = newTraitData.Name
 	titleText.LuaValue = newTraitData
+	--#endregion
 	-- override start
 	-- We retrieve boon state from GetBoonState, then retrieve the corresponding color
 	local boonState = GetBoonState(traitName)
@@ -176,6 +178,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 		titleText.Color = BoonColors.State[boonState]
 	end
 	-- override end
+	--#region CreateBoonInfoButton
 	CreateTextBox( titleText )
 	table.insert( traitInfo.Components, traitInfo.TitleBox )
 
@@ -310,6 +313,7 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	end
 
 	BoonInfoScreenUpdateTooltipToggle( screen, button )
+--#endregion
 
 	-- override start
 	if boonState == BoonState.Denied and CurrentHubRoom == nil then
@@ -342,9 +346,8 @@ modutil.mod.Path.Override("CreateBoonInfoButton", function(screen, traitName, in
 	
 end)
 
-
-
 modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerTextArgs, traitList, startY, metRequirement)
+	--#region CreateTraitRequirementList
 	if traitList == nil then
 		return
 	end
@@ -353,7 +356,8 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	if TableLength(traitList) == 1 and headerTextArgs.TextSingular then
 		headerText = headerTextArgs.TextSingular
 	end
-	
+	--#endregion
+
 	-- override START
 	-- TwoOf isn't used but won't work anyway in current game codebase.
 	--  Still, we're implementing against it by pattern matching on the value of headerTextArgs.Text
@@ -370,6 +374,7 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 	end
 	-- override END
 
+	--#region CreateTraitRequirementList
 	local listRequirementHeaderFormat = ShallowCopyTable( ScreenData.BoonInfo.ListRequirementHeaderFormat )
 	listRequirementHeaderFormat.Id = screen.Components.RequirementsText.Id
 	listRequirementHeaderFormat.Text = headerText
@@ -389,12 +394,13 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 			elseif sharedGod ~= lootSourceName and not LootData[sharedGod].TraitIndex[traitName] then
 				allSame = false
 			end
-		
+		--#endregion CreateTraitRequirementList
 			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
 			local boonState = GetBoonState(traitName)
 			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[boonState], ShadowOffsetBulletList[boonState])
 			-- override END
+			--#region CreateTraitRequirementList
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY
 			listRequirementFormat.LuaValue = { TraitName = traitName }
@@ -419,6 +425,7 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 
 	startY = startY + ScreenData.BoonInfo.ListRequirementHeaderSpacingY
 	return startY
+	--#endregion CreateTraitRequirementList
 end)
 
 
