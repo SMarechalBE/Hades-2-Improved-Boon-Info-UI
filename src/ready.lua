@@ -86,7 +86,7 @@ local function CreateListRequirementFormatTableWithColor(color, shadowOffset)
 		OffsetX = 30,
 		Color = color,
 		Font = "P22UndergroundSCMedium",
-		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset= shadowOffset or {0, 1},
+		ShadowBlur = 0, ShadowColor = {0,0,0,1}, ShadowOffset = shadowOffset or {0, 1},
 		Justification = "Left",
 		LuaKey = "TempTextData",
 		DataProperties =
@@ -397,18 +397,8 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 		--#endregion CreateTraitRequirementList
 			-- override START
 			-- For each boon, we get its current state, and then take the corresponding table
-			local boonState = GetBoonState(traitName)
-			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[boonState], ShadowOffsetBulletList[boonState])
-
-			-- Add strike through for denied boons
-			if boonState == BoonState.Denied then
-				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "QuestLogScreenStrikethrough", Alpha = 1.0 })
-				table.insert( screen.TraitRequirements, strikeThrough.Id )
-				Attach({ Id = strikeThrough.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetY = startY, OffsetX = 200})
-
-				-- Maybe it could be scaled to the actual text size, but we need to retrieve localized text for this
-				-- SetScaleX({ Id = strikeThrough.Id, Fraction = string.len(traitData.Name) / 10 })
-			end
+			local reqBoonState = GetBoonState(traitName)
+			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[reqBoonState], ShadowOffsetBulletList[reqBoonState])
 
 			if game.HasStoreItemPin(traitName) then
 				local pinned = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "RotatedPinIcon", Scale = 0.35, Alpha = 1.0 })	
@@ -416,13 +406,19 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 				Attach({ Id = pinned.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 10, OffsetY = startY + 1 })
 			end
 
+			if reqBoonState == BoonState.Denied then
+				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "LockedKeepsakeIcon", Scale = 0.35, Alpha = 1 })	
+				table.insert( screen.TraitRequirements, strikeThrough.Id )
+				Attach({ Id = strikeThrough.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetX = listRequirementFormat.OffsetX - 12, OffsetY = startY + 1 })
+			end
 			-- override END
-			--#region CreateTraitRequirementList
+
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
 			listRequirementFormat.OffsetY = startY
 			listRequirementFormat.LuaValue = { TraitName = traitName }
 			CreateTextBox( listRequirementFormat )
 
+			--#region CreateTraitRequirementList
 			startY = startY + ScreenData.BoonInfo.ListRequirementSpacingY
 		end
 	end
