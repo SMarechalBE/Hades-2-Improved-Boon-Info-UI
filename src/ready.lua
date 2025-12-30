@@ -399,6 +399,17 @@ modutil.mod.Path.Override("CreateTraitRequirementList", function(screen, headerT
 			-- For each boon, we get its current state, and then take the corresponding table
 			local boonState = GetBoonState(traitName)
 			local listRequirementFormat = CreateListRequirementFormatTableWithColor(BoonColors.Requirement.BulletList[boonState], ShadowOffsetBulletList[boonState])
+
+			-- Add strike through for denied boons
+			if boonState == BoonState.Denied then
+				local strikeThrough = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu_TraitTray", Animation = "QuestLogScreenStrikethrough", Alpha = 1.0 })
+				table.insert( screen.TraitRequirements, strikeThrough.Id )
+				Attach({ Id = strikeThrough.Id, DestinationId = screen.Components.RequirementsText.Id, OffsetY = startY, OffsetX = 200})
+			end
+
+			-- Maybe it could be scaled to the actual text size, but we need to retrieve localized text for this
+			-- SetScaleX({ Id = strikeThrough.Id, Fraction = string.len(traitData.Name) / 10 })
+
 			-- override END
 			--#region CreateTraitRequirementList
 			listRequirementFormat.Id = screen.Components.RequirementsText.Id
