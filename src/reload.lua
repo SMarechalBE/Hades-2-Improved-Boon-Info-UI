@@ -12,10 +12,9 @@ end
 ---Get a lookup table of the gods met this run
 ---@return table
 function GetMetGodsLookup()
-
 	local gods = {}
 	if IsRunOngoing() then
-		for _, godName in pairs( game.GetInteractedGodsThisRun() ) do
+		for _, godName in pairs(game.GetInteractedGodsThisRun()) do
 			gods[godName] = true
 		end
 	end
@@ -39,24 +38,32 @@ function GetGodsName(traitName)
 end
 
 ---Checks whether the gods of the given boon is available (e.g., in the god pool if max reached).
----Note: for duo boons it is additionally checked if both gods fit in the god pool.  
+---Note: for duo boons it is additionally checked if both gods fit in the god pool.
 ---@param traitName string
 ---@return boolean
 function IsBoonGodAvailable(traitName)
-	if not IsRunOngoing() then return true end
+	if not IsRunOngoing() then
+		return true
+	end
 
 	local metGods = GetMetGodsLookup()
 
 	local emptyGodPoolSlot = (CurrentRun.MaxGodsPerRun or HeroData.MaxGodsPerRun) - game.TableLength(metGods)
-	if emptyGodPoolSlot < 0 then emptyGodPoolSlot = 0 end
+	if emptyGodPoolSlot < 0 then
+		emptyGodPoolSlot = 0
+	end
 
 	local requiredGods = GetGodsName(traitName)
 
 	local requiredGodsCount = #requiredGods
-	if emptyGodPoolSlot >= requiredGodsCount then return true end
+	if emptyGodPoolSlot >= requiredGodsCount then
+		return true
+	end
 
 	for _, godName in ipairs(requiredGods) do
-		if metGods[godName] then requiredGodsCount = requiredGodsCount - 1 end
+		if metGods[godName] then
+			requiredGodsCount = requiredGodsCount - 1
+		end
 	end
 
 	return emptyGodPoolSlot >= requiredGodsCount
@@ -102,8 +109,7 @@ end
 ---@return string?
 function GetSlot(traitName)
 	local traitData = game.TraitData[traitName]
-	return  traitData
-		and traitData.Slot
+	return traitData and traitData.Slot
 end
 
 ---Checks if the slot of the given boon is available, always true if the boon has no slot.
@@ -111,8 +117,7 @@ end
 ---@return boolean
 function IsBoonSlotAvailable(traitName)
 	local slotName = GetSlot(traitName)
-	return not slotName
-		or not game.HeroSlotFilled(slotName)
+	return not slotName or not game.HeroSlotFilled(slotName)
 end
 
 ---Checks if a run is currently ongoing
@@ -122,33 +127,34 @@ function IsRunOngoing()
 end
 
 ---Create a BoonState table with each entry representing the count of occurences of that state in<br>
----the table 
+---the table
 ---@param traits table
 ---@return table
 local function CreateBoonStateCountTable(traits)
 	local states = {}
 	for _, traitName in ipairs(traits) do
 		local stateName, unfulfilledStateName = GetBoonState(traitName)
-		if unfulfilledStateName then stateName = unfulfilledStateName end
+		if unfulfilledStateName then
+			stateName = unfulfilledStateName
+		end
 		states[stateName] = (states[stateName] or 0) + 1
 	end
 
 	return states
 end
 
----Parses a table created by CreateBoonStateCountTable and returns the boon state.<br> 
----  Those strange calculations are necessary to handle pickCountNeeded > 1 
+---Parses a table created by CreateBoonStateCountTable and returns the boon state.<br>
+---  Those strange calculations are necessary to handle pickCountNeeded > 1
 ---@param stateCountTable table
 ---@param pickCountNeeded integer The number of picked boons required in the table
 ---@return BoonState
 ---@return BoonUnfulfilledState?
 local function GetStateFromStateCountTable(stateCountTable, pickCountNeeded)
-
 	pickCountNeeded = pickCountNeeded - (stateCountTable.Picked and stateCountTable.Picked or 0)
 	if pickCountNeeded < 1 then
 		return BoonState.Available -- requirement is fulfilled, so boon is available
 	end
-	
+
 	pickCountNeeded = pickCountNeeded - (stateCountTable.Available and stateCountTable.Available or 0)
 	if pickCountNeeded < 1 then
 		return BoonState.Unfulfilled
@@ -182,11 +188,15 @@ function GetStateFromOneFromEachSet(requirementSets)
 	for _, requirements in ipairs(requirementSets) do
 		local stateName, unfulfilledStateName = GetStateFromStateCountTable(CreateBoonStateCountTable(requirements), 1)
 		states[stateName] = true
-		if unfulfilledStateName then unfulfilledStates[unfulfilledStateName] = true end
+		if unfulfilledStateName then
+			unfulfilledStates[unfulfilledStateName] = true
+		end
 	end
-	
+
 	-- Unavailability has more weight between sets
-	if states.Denied then return BoonState.Denied end
+	if states.Denied then
+		return BoonState.Denied
+	end
 	if states.Unfulfilled then
 		if unfulfilledStates.GodUnavailable then
 			return BoonState.Unfulfilled, BoonUnfulfilledState.GodUnavailable
@@ -230,8 +240,11 @@ function GetRequirementState(requirements, type)
 		return GetStateFromOneFromEachSet(requirements)
 	end
 
-	modutil.mod.Print("Something went wrong when checking requirements state, wrong type passed: "
-					  .. type .. ", should be OneOf, TwoOf or OneFromEachSet")
+	modutil.mod.Print(
+		"Something went wrong when checking requirements state, wrong type passed: "
+			.. type
+			.. ", should be OneOf, TwoOf or OneFromEachSet"
+	)
 	return BoonState.Available --We shouldn't ever get here
 end
 
@@ -254,8 +267,11 @@ function GetBoonRequirementState(traitName)
 		end
 	end
 
-	modutil.mod.Print("Something went wrong when retrieving TraitRequirements for trait: "
-					.. traitName .. ", should have OneOf, TwoOf or OneFromEachSet")
+	modutil.mod.Print(
+		"Something went wrong when retrieving TraitRequirements for trait: "
+			.. traitName
+			.. ", should have OneOf, TwoOf or OneFromEachSet"
+	)
 	return BoonState.Available --We shouldn't ever get here
 end
 
@@ -279,7 +295,11 @@ function GetBoonState(traitName)
 	local traitToReplace = GetSacrificeBoon(traitName)
 	local traitToReplaceData = traitToReplace and game.GetHeroTrait(traitToReplace)
 	local traitToReplaceRarity = traitToReplaceData and traitToReplaceData.Rarity
-	if IsBoonDenied(traitName) or requirementState == BoonState.Denied or (config.unreplaceableSacrificeBoonsAsBanned and traitToReplaceRarity == "Heroic") then
+	if
+		IsBoonDenied(traitName)
+		or requirementState == BoonState.Denied
+		or (config.unreplaceableSacrificeBoonsAsBanned and traitToReplaceRarity == "Heroic")
+	then
 		return BoonState.Denied
 	elseif not IsBoonGodAvailable(traitName) then
 		return BoonState.GodUnavailable
@@ -294,10 +314,14 @@ end
 ---@param slotName string
 ---@return string?
 function GetCurrentBoonForSlot(slotName)
-	if not slotName then return nil end
-	if not game.CurrentRun or not game.CurrentRun.Hero or not game.CurrentRun.Hero.Traits then return nil end
+	if not slotName then
+		return nil
+	end
+	if not game.CurrentRun or not game.CurrentRun.Hero or not game.CurrentRun.Hero.Traits then
+		return nil
+	end
 
-	for _, traitData in ipairs( game.CurrentRun.Hero.Traits ) do
+	for _, traitData in ipairs(game.CurrentRun.Hero.Traits) do
 		if traitData.Slot == slotName then
 			return traitData.Name
 		end
@@ -306,12 +330,14 @@ function GetCurrentBoonForSlot(slotName)
 	return nil
 end
 
----Retrieve different boon to sacrifice for this boon 
+---Retrieve different boon to sacrifice for this boon
 ---@param traitName string
 ---@return string?
 function GetSacrificeBoon(traitName)
 	local traitData = traitName and game.TraitData[traitName]
-	if not traitData then return nil end
+	if not traitData then
+		return nil
+	end
 
 	local sacrificeTraitName = GetCurrentBoonForSlot(traitData.Slot)
 	if not sacrificeTraitName or traitName == sacrificeTraitName then
@@ -321,73 +347,58 @@ function GetSacrificeBoon(traitName)
 	return sacrificeTraitName
 end
 
-
-local Context =
-{
-	Filter =
-	{
-		Values =
-		{
-			Order =
-			{
+local Context = {
+	Filter = {
+		Values = {
+			Order = {
 				"Available", -- 1
 				"Unfulfilled", -- 2
 				"Unavailable", -- 3
 				"All", -- 4
 			},
 
-			All =
-			{
+			All = {
 				Text = "ALL",
-				StatesAllowed =
-				{
+				StatesAllowed = {
 					BoonState.Picked,
 					BoonState.SlotUnavailable,
 					BoonState.GodUnavailable,
 					BoonState.Available,
 					BoonState.Denied,
 					BoonState.Unfulfilled,
-				}
+				},
 			},
 
-			Available =
-			{
+			Available = {
 				Text = "AVAILABLE",
-				StatesAllowed =
-				{
+				StatesAllowed = {
 					BoonState.Available,
 					config.sacrificeBoonsAlwaysAsAvailable and BoonState.SlotUnavailable or nil,
-				}
+				},
 			},
 
-			Unfulfilled =
-			{
+			Unfulfilled = {
 				Text = "UNFULFILLED",
-				StatesAllowed =
-				{
+				StatesAllowed = {
 					BoonState.Available,
 					config.sacrificeBoonsAlwaysAsAvailable and BoonState.SlotUnavailable or nil,
 					BoonState.Unfulfilled,
-				}
+				},
 			},
 
-			Unavailable =
-			{
+			Unavailable = {
 				Text = "UNAVAILABLE",
-				StatesAllowed =
-				{
+				StatesAllowed = {
 					BoonState.SlotUnavailable,
 					BoonState.GodUnavailable,
 					BoonState.Available,
 					BoonState.Unfulfilled,
-				}
+				},
 			},
-
 		},
 		CurrentIndex = 2,
 	},
 }
-
 
 function GetStartingFilterIndex(godName)
 	local metGodsLookup = GetMetGodsLookup()
@@ -400,13 +411,13 @@ function GetStartingFilterIndex(godName)
 	end
 end
 
-function BoonInfoScreenNextFilter( screen, button )
+function BoonInfoScreenNextFilter(screen, button)
 	SetFilter(Context.Filter.CurrentIndex + 1, screen)
 	RefreshBoons(screen)
 	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
 end
 
-function BoonInfoScreenPreviousFilter( screen, button )
+function BoonInfoScreenPreviousFilter(screen, button)
 	SetFilter(Context.Filter.CurrentIndex - 1, screen)
 	RefreshBoons(screen)
 	game.PlaySound({ Name = "/SFX/Menu Sounds/IrisMenuSwitch" })
@@ -418,7 +429,7 @@ function SetComponent(componentId, setOn)
 		game.UseableOn({ Id = componentId })
 	else
 		game.SetAlpha({ Id = componentId, Fraction = 0.0, Duration = 0.0 })
-		game.UseableOff({ Id = componentId})
+		game.UseableOff({ Id = componentId })
 	end
 end
 
@@ -441,7 +452,7 @@ function GetFilterAllowedStates(index)
 end
 
 function RefreshBoons(screen)
-	game.BoonInfoPopulateTraits( screen )
+	game.BoonInfoPopulateTraits(screen)
 	ApplyFilter(screen)
 
 	if #screen.TraitList == 0 then -- Let's apply unavailable filter if list is empty after filtering
@@ -452,16 +463,21 @@ function RefreshBoons(screen)
 
 	game.CreateBoonInfoButtons(screen)
 	if #screen.TraitList > 0 then
-		game.TeleportCursor({ DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id, ForceUseCheck = true })
+		game.TeleportCursor({
+			DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id,
+			ForceUseCheck = true,
+		})
 	end
-	game.UpdateBoonInfoPageButtons( screen )
+	game.UpdateBoonInfoPageButtons(screen)
 end
 
 function SetFilter(index, screen)
 	Context.Filter.CurrentIndex = index
 
 	local components = screen.Components
-	if not components then return end
+	if not components then
+		return
+	end
 
 	local textFilterTypeId = components.TextFilterType and components.TextFilterType.Id
 	if textFilterTypeId then
@@ -490,7 +506,9 @@ end
 
 function InitializeFilter(screen)
 	local components = screen and screen.Components
-	if not components then return end
+	if not components then
+		return
+	end
 
 	if not IsGodLoot(screen.LootName) then
 		SetComponent(components.PreviousFilter.Id)
