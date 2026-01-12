@@ -422,17 +422,21 @@ function SetComponent(componentId, setOn)
 	end
 end
 
+local function GetCurrentIndex()
+	return Context.Filter.CurrentIndex
+end
+
 function GetFilterValue(value)
 	return Context.Filter.Values.Order[value]
 end
 
 function GetCurrentFilterText()
-	local filter = GetFilterValue(Context.Filter.CurrentIndex)
-	return filter and "FILTER: "..Context.Filter.Values[filter].Text
+	local filter = GetFilterValue(GetCurrentIndex())
+	return filter and "FILTER: " .. Context.Filter.Values[filter].Text
 end
 
-function GetCurrentFilterAllowedStates()
-	local filter = GetFilterValue(Context.Filter.CurrentIndex)
+function GetFilterAllowedStates(index)
+	local filter = GetFilterValue(index)
 	return filter and Context.Filter.Values[filter].StatesAllowed
 end
 
@@ -470,7 +474,12 @@ function SetFilter(index, screen)
 
 	local previousFilterId = components.PreviousFilter and components.PreviousFilter.Id
 	if previousFilterId then
-		SetComponent(previousFilterId, GetFilterValue(index - 1))
+		-- TODO: check if that introduces lag, if it is the case, let's do this differently
+		local _screen = { LootName = screen.LootName, TraitSortOrder = screen.TraitSortOrder }
+		game.BoonInfoPopulateTraits(_screen)
+		ApplyFilter(_screen, GetCurrentIndex() - 1)
+
+		SetComponent(previousFilterId, game.TableLength(_screen.TraitList) > 0 and GetFilterValue(index - 1))
 	end
 
 	local nextFilterId = components.NextFilter and components.NextFilter.Id
@@ -493,18 +502,22 @@ function InitializeFilter(screen)
 	SetFilter(GetStartingFilterIndex(screen.LootName), screen)
 end
 
-function ApplyFilter(screen)
-	if not IsGodLoot(screen.LootName) then return end
-
-	local allowedStates = GetCurrentFilterAllowedStates()
-	if not allowedStates then return end -- Shouldn't be the case
+function ApplyFilter(screen, index)
+	if not IsGodLoot(screen.LootName) then
+		return
+	end
 
 	local filteredTraitList = {}
-	for _, traitName in ipairs(screen.TraitList) do
-		local boonState, unfulfilledBoonState = GetBoonState(traitName)
-		for _, state in pairs(allowedStates) do
-			if (unfulfilledBoonState or boonState) == state then
-				table.insert(filteredTraitList, traitName)
+
+	index = index or GetCurrentIndex()
+	local allowedStates = GetFilterAllowedStates(index)
+	if allowedStates then
+		for _, traitName in ipairs(screen.TraitList) do
+			local boonState, unfulfilledBoonState = GetBoonState(traitName)
+			for _, state in pairs(allowedStates) do
+				if (unfulfilledBoonState or boonState) == state then
+					table.insert(filteredTraitList, traitName)
+				end
 			end
 		end
 	end
