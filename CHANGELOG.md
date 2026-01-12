@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Set sacrifice boons as banned if the current boon rarity for the slot is Heroic as it can't ever be offered unless sold.
 - God discovery is better, any newly added god should be compatible by default
+- Fallback filter to unavailable if applying filter would result in an empty page 
 
 ### Fixed
 

@@ -390,15 +390,13 @@ local Context =
 
 
 function GetStartingFilterIndex(godName)
-	if godName == "PlayerUnit" then
-		return 2 -- Show unfulfilled by default for Melinoe (dirty dependency hack)
-	end
-
 	local metGodsLookup = GetMetGodsLookup()
 	if metGodsLookup[godName] then
-		return 1 -- Show available by default for met gods
+		return game.GetIndex(Context.Filter.Values.Order, "Available") -- Display available by default for met gods
+	elseif game.CurrentHubRoom or godName == "PlayerUnit" then
+		return game.GetIndex(Context.Filter.Values.Order, "Unfulfilled") -- Display unfulfilled if we are not in a run or for Melinoe (Run Boon Overview compat)
 	else
-		return 3 -- Show unavailable for other gods
+		return game.GetIndex(Context.Filter.Values.Order, "Unavailable") -- Display unavailable otherwise
 	end
 end
 
@@ -441,7 +439,14 @@ end
 function RefreshBoons(screen)
 	game.BoonInfoPopulateTraits( screen )
 	ApplyFilter(screen)
-	game.CreateBoonInfoButtons( screen )
+
+	if #screen.TraitList == 0 then -- Let's apply unavailable filter if list is empty after filtering
+		SetFilter(game.GetIndex(Context.Filter.Values.Order, "Unavailable"), screen)
+		game.BoonInfoPopulateTraits(screen)
+		ApplyFilter(screen)
+	end
+
+	game.CreateBoonInfoButtons(screen)
 	if #screen.TraitList > 0 then
 		game.TeleportCursor({ DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id, ForceUseCheck = true })
 	end
