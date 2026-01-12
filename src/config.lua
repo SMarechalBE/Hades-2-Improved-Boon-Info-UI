@@ -9,7 +9,7 @@ local function ColorDescription(default)
   if not default then default = "unknown" end
   return MakeOverride(
     "Override default color",
-    "Color value to use, can be raw value (e.g. {255, 255, 255, 255}) or from game definitions (e.g. Color.White, see game file Scripts/ColorData.lua for more info). Default: " .. default
+    "Hexadecimal RGB or RGBA color value (e.g. '#FFFFFFFF'), providing no alpha makes it FF by default. Default: " .. default
   )
 end
 
@@ -21,14 +21,6 @@ local function AlphaDescription(default)
   )
 end
 
-local function ShadowOffsetDescription(default)
-  if not default then default = "unknown" end
-  return MakeOverride(
-    "Override shadow offset. Default: " .. default,
-    "X and Y pixel offset value for the shadow (e.g. {0, 1} for a shadow below)"
-  )
-end
-
 local function ButtonTitleDescription(defaultColor, defaultAlpha)
   return {
     Color = ColorDescription(defaultColor),
@@ -36,14 +28,11 @@ local function ButtonTitleDescription(defaultColor, defaultAlpha)
   }
 end
 
-local function BulletListDescription(defaultColor, defaultAlpha, defaultShadowOffset)
+local function BulletListDescription(defaultColor, defaultAlpha)
   return {
     Color = ColorDescription(defaultColor),
     Alpha = AlphaDescription(defaultAlpha),
-    Shadow = {
-      Color = ColorDescription("{0, 0, 0, 1}"),
-      Offset = ShadowOffsetDescription((defaultShadowOffset or "{0, 1}")),
-    }
+    ShadowColor = ColorDescription("00000001")
   }
 end
 
@@ -63,110 +52,92 @@ local config = {
     Picked = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 1})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
     },
     Available = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 0})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
       Header = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
     },
     Unfulfilled = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 0})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
       Header = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
     },
     SlotUnavailable = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 0})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
       Header = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
     },
     GodUnavailable = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 0})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
       Header = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
     },
     Banned = {
       Enable = true,
       ButtonTitle = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
       BulletList = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
-        Shadow = {
-          Color = MakeOverride(false, {0, 0, 0, 1}),
-          Offset = MakeOverride(false, {0, 0})
-        }
+        ShadowColor = MakeOverride(false, "00000001"),
       },
       Header = {
-        Color = MakeOverride(false, {255, 255, 255, 255}),
+        Color = MakeOverride(false, "ffffffff"),
         Alpha = MakeOverride(false, 255),
       },
     },
@@ -190,13 +161,13 @@ local configDesc = {
     Available = {
       Enable = "Enable custom style for available boons.",
       ButtonTitle = ButtonTitleDescription("Rarity", "/"),
-      BulletList = BulletListDescription("{ 52, 48, 58, 185 } (greyish)", "/", "{0, 0} (no shadow)"),
+      BulletList = BulletListDescription("'#34303AB9' (greyish)", "/"),
       Header = HeaderDescription("Color.BoonInfoAcquired (light green)", "/"),
     },
     Unfulfilled = {
       Enable = "Enable custom style for unfulfilled boons.",
       ButtonTitle = ButtonTitleDescription("Rarity", "120"),
-      BulletList = BulletListDescription("{ 52, 48, 58, 185 } (greyish)", "50", "{0, 0} (no shadow)"),
+      BulletList = BulletListDescription("'#34303AB9' (greyish)", "50"),
       Header = HeaderDescription("Color.White", "/"),
     },
     SlotUnavailable = {
@@ -214,7 +185,7 @@ local configDesc = {
     Banned = {
       Enable = "Enable custom style for banned boons.",
       ButtonTitle = ButtonTitleDescription("Rarity", "120"),
-      BulletList = BulletListDescription("Color.BonesInactive (blackish/dark blue)", "185", "{0, 0} (no shadow)"),
+      BulletList = BulletListDescription("Color.BonesInactive (blackish/dark blue)", "185"),
       Header = HeaderDescription("Color.BonesInactive (blackish/dark blue)", "/"),
     },
   },

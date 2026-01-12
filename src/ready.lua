@@ -140,34 +140,30 @@ for state, styleData in pairs(config.AvailabilityStyle) do
 	if styleData.Enable then
 		local buttonTitle = styleData.ButtonTitle
 		if buttonTitle.Color.Override and buttonTitle.Color.Value then
-			BoonColors.Title.Value[state] = buttonTitle.Color.Value
+			BoonColors.Title.Value[state] = StrToColor(buttonTitle.Color.Value)
 		end
 		if buttonTitle.Alpha.Override and buttonTitle.Alpha.Value then
-			BoonColors.Title.Alpha[state] = buttonTitle.Alpha.Value
+			BoonColors.Title.Alpha[state] = ClampAlpha(buttonTitle.Alpha.Value)
 		end
 
 		local bulletList = styleData.BulletList
 		if bulletList.Color.Override and bulletList.Color.Value then
-			BoonColors.Requirement.BulletList[state] = bulletList.Color.Value
+			BoonColors.Requirement.BulletList[state] = StrToColor(bulletList.Color.Value)
 		end
 		if bulletList.Alpha.Override and bulletList.Alpha.Value then
-			BoonColors.Requirement.BulletList[state] = ChangeAlpha(BoonColors.Requirement.BulletList[state], bulletList.Alpha.Value)
+			BoonColors.Requirement.BulletList[state] = ChangeAlpha(BoonColors.Requirement.BulletList[state], ClampAlpha(bulletList.Alpha.Value))
 		end
-
-		local shadow = bulletList.Shadow
-		if shadow.Color.Override and shadow.Color.Value then
-			BoonColors.Requirement.Shadow.Color[state] = shadow.Color.Value
-		end
-		if shadow.Offset.Override and shadow.Offset.Value then
-			BoonColors.Requirement.Shadow.Offset[state] = shadow.Offset.Value
+		local shadowColor = bulletList.ShadowColor
+		if  shadowColor.Override and shadowColor.Value then
+			BoonColors.Requirement.Shadow.Color[state] = StrToColor(shadowColor.Value)
 		end
 
 		local header = styleData.Header
 		if header and header.Color.Override and header.Color.Value then
-			BoonColors.Requirement.Header[state] = header.Color.Value
+			BoonColors.Requirement.Header[state] = StrToColor(header.Color.Value)
 		end
 		if header and header.Alpha.Override and header.Alpha.Value then
-			BoonColors.Requirement.Header[state] = ChangeAlpha(BoonColors.Requirement.Header[state], header.Alpha.Value)
+			BoonColors.Requirement.Header[state] = ChangeAlpha(BoonColors.Requirement.Header[state], ClampAlpha(header.Alpha.Value))
 		end
 	end
 end
