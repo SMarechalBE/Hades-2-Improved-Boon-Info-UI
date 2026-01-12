@@ -200,20 +200,6 @@ local function CreateListRequirementFormatTableWithColor(state)
 	}
 end
 
----@enum BoonSlotGivers
-BoonSlotGivers = {
-	"AphroditeUpgrade",
-	"ApolloUpgrade",
-	"DemeterUpgrade",
-	"HephaestusUpgrade",
-	"HestiaUpgrade",
-	"HeraUpgrade",
-	"PoseidonUpgrade",
-	"ZeusUpgrade",
-	"AresUpgrade",
-	"PlayerUnit", -- Enable it with Run Boon Overview (though this is not great pattern as it is hidden)
-}
-
 --#endregion style
 
 --#region BoonInfo UI

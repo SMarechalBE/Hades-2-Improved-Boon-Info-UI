@@ -62,29 +62,29 @@ function IsBoonGodAvailable(traitName)
 	return emptyGodPoolSlot >= requiredGodsCount
 end
 
----Checks whether the god is one of the Olympian (slot) boon giver
----TODO: I think this should just be GodLoot
+---Checks whether the god is one of the Olympian GodLoot
 ---@param godName string
 ---@return boolean
-function IsSlotGiver(godName)
-	for _, slotGod in ipairs(BoonSlotGivers) do
-		if godName == slotGod then
-			return true
-		end
+function IsGodLoot(godName)
+	-- Dirty trick to allow Melinoe in for Run Boon Overview compatibility TODO: Check if mod is enabled as well
+	if godName == "PlayerUnit" then
+		return true
 	end
 
-	return false
+	local godData = game.LootData and game.LootData[godName]
+
+	return godData and godData.GodLoot or false
 end
 
----Checks whether the god of the given boon is one of the Olympian (slot) boon giver
+---Checks whether the god of the given boon is one of the Olympian GodLoot
 ---@param traitName string
 ---@return boolean
-function IsBoonFromSlotGiver(traitName)
+function IsBoonFromGodLootGiver(traitName)
 	local godName = game.GetGodSourceName(traitName)
-	return IsSlotGiver(godName)
+	return IsGodLoot(godName)
 end
 
----Checks whether the god of the given boon is one of the Olympian (slot) boon giver
+---Checks whether the god of the given boon is one of the Olympian GodLoot
 ---@param traitName string
 ---@return boolean
 function IsBoonDenied(traitName)
@@ -271,7 +271,7 @@ end
 function GetBoonState(traitName)
 	if IsBoonPicked(traitName) then
 		return BoonState.Picked
-	elseif not IsBoonFromSlotGiver(traitName) then -- Make all boons from non slot boon god available
+	elseif not IsBoonFromGodLootGiver(traitName) then -- Make all boons from non slot boon god available
 		return BoonState.Available
 	end
 
@@ -478,7 +478,7 @@ function InitializeFilter(screen)
 	local components = screen and screen.Components
 	if not components then return end
 
-	if not IsSlotGiver(screen.LootName) then
+	if not IsGodLoot(screen.LootName) then
 		SetComponent(components.PreviousFilter.Id)
 		SetComponent(components.NextFilter.Id)
 		SetComponent(components.TextFilterType.Id)
@@ -489,7 +489,7 @@ function InitializeFilter(screen)
 end
 
 function ApplyFilter(screen)
-	if not IsSlotGiver(screen.LootName) then return end
+	if not IsGodLoot(screen.LootName) then return end
 
 	local allowedStates = GetCurrentFilterAllowedStates()
 	if not allowedStates then return end -- Shouldn't be the case
