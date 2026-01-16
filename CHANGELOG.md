@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Situation when only one slot was available for 2 unfulfilled requirements was uncorrectly identifying it as unfulfilled instead of unavailable. Special thanks to Kanamahk for reporting this.
+
 ## [1.3.0] - 2026-01-12
 
 ### Added

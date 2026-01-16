@@ -130,17 +130,25 @@ end
 ---the table
 ---@param traits table
 ---@return table
+---@return table availableSlot lookup table of slots available
 local function CreateBoonStateCountTable(traits)
 	local states = {}
+	local availableSlots = {}
 	for _, traitName in ipairs(traits) do
 		local stateName, unfulfilledStateName = GetBoonState(traitName)
+
+		if stateName == BoonState.Available then
+			local slot = GetSlot(traitName)
+			availableSlots[slot or "None"] = true
+		end
+
 		if unfulfilledStateName then
 			stateName = unfulfilledStateName
 		end
 		states[stateName] = (states[stateName] or 0) + 1
 	end
 
-	return states
+	return states, availableSlots
 end
 
 ---Parses a table created by CreateBoonStateCountTable and returns the boon state.<br>
@@ -184,12 +192,19 @@ end
 function GetStateFromOneFromEachSet(requirementSets)
 	local states = {}
 	local unfulfilledStates = {}
+	local availableSlots = {}
 
 	for _, requirements in ipairs(requirementSets) do
-		local stateName, unfulfilledStateName = GetStateFromStateCountTable(CreateBoonStateCountTable(requirements), 1)
+		local stateCountTable, reqAvailableSlots = CreateBoonStateCountTable(requirements)
+		local stateName, unfulfilledStateName = GetStateFromStateCountTable(stateCountTable, 1)
 		states[stateName] = true
+
 		if unfulfilledStateName then
 			unfulfilledStates[unfulfilledStateName] = true
+		elseif stateName == BoonState.Unfulfilled then
+			for slot, _ in pairs(reqAvailableSlots) do
+				availableSlots[slot] = true
+			end
 		end
 	end
 
@@ -197,10 +212,13 @@ function GetStateFromOneFromEachSet(requirementSets)
 	if states.Denied then
 		return BoonState.Denied
 	end
+
 	if states.Unfulfilled then
 		if unfulfilledStates.GodUnavailable then
 			return BoonState.Unfulfilled, BoonUnfulfilledState.GodUnavailable
 		elseif unfulfilledStates.SlotUnavailable then
+			return BoonState.Unfulfilled, BoonUnfulfilledState.SlotUnavailable
+		elseif game.TableLength(availableSlots) == 1 and next(availableSlots) ~= "None" then -- Only 1 slot available for reqs
 			return BoonState.Unfulfilled, BoonUnfulfilledState.SlotUnavailable
 		else
 			return BoonState.Unfulfilled
@@ -227,13 +245,15 @@ function GetRequirementState(requirements, type)
 	end
 
 	if type == RequirementType.OneOf then
-		return GetStateFromStateCountTable(CreateBoonStateCountTable(requirements), 1)
+		local stateCountTable = CreateBoonStateCountTable(requirements)
+		return GetStateFromStateCountTable(stateCountTable, 1)
 	end
 
 	if type == RequirementType.TwoOf then
 		-- This is technically not implemented in the game currently, but let's add this here<br>
 		--  for robustness.
-		return GetStateFromStateCountTable(CreateBoonStateCountTable(requirements), 2)
+		local stateCountTable = CreateBoonStateCountTable(requirements)
+		return GetStateFromStateCountTable(stateCountTable, 2)
 	end
 
 	if type == RequirementType.OneFromEachSet then
