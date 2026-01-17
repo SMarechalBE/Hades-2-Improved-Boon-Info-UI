@@ -506,10 +506,10 @@ function RefreshBoons(screen)
 	end
 
 	if newIndex == 0 then
-		screen.StartingIndex = 1 -- Worst case, go to first element
-	else
-		screen.StartingIndex = newIndex - ((newIndex - 1) % screen.NumPerPage)
+		newIndex = 1 -- Worst case, go to first element
 	end
+
+	screen.StartingIndex = newIndex - ((newIndex - 1) % screen.NumPerPage)
 
 	game.CreateBoonInfoButtons(screen)
 	if #screen.TraitList > 0 then
