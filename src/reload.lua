@@ -473,6 +473,7 @@ end
 
 function RefreshBoons(screen)
 	game.BoonInfoPopulateTraits(screen)
+	local unfilteredList = game.ShallowCopyTable(screen.TraitList)
 	ApplyFilter(screen)
 
 	if #screen.TraitList == 0 then -- Let's apply unavailable filter if list is empty after filtering
@@ -481,10 +482,39 @@ function RefreshBoons(screen)
 		ApplyFilter(screen)
 	end
 
+	local newIndex = 0
+	local selectedItem = screen.SelectedItem
+
+	if selectedItem then
+		local selectedTraitName = selectedItem.TraitData and selectedItem.TraitData.Name
+		local selectedIndex = game.GetIndex(unfilteredList, selectedTraitName)
+		newIndex = game.GetIndex(screen.TraitList, selectedTraitName)
+		if newIndex == 0 then
+			for i = 1, 10 do
+				local otherTrait = unfilteredList[selectedIndex - i]
+				newIndex = game.GetIndex(screen.TraitList, otherTrait)
+				if newIndex == 0 then
+					otherTrait = unfilteredList[selectedIndex + i]
+					newIndex = game.GetIndex(screen.TraitList, otherTrait)
+				end
+
+				if newIndex ~= 0 then
+					break
+				end
+			end
+		end
+	end
+
+	if newIndex == 0 then
+		screen.StartingIndex = 1 -- Worst case, go to first element
+	else
+		screen.StartingIndex = newIndex - ((newIndex - 1) % screen.NumPerPage)
+	end
+
 	game.CreateBoonInfoButtons(screen)
 	if #screen.TraitList > 0 then
 		game.TeleportCursor({
-			DestinationId = screen.Components["BooninfoButton1"].PurchaseButton.Id,
+			DestinationId = screen.Components["BooninfoButton" .. (((newIndex - 1) % screen.NumPerPage) + 1)].PurchaseButton.Id,
 			ForceUseCheck = true,
 		})
 	end
