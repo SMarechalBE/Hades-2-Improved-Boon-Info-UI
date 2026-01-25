@@ -420,14 +420,32 @@ local Context = {
 	},
 }
 
+local function GetFilterIndex(filterName)
+	return game.GetIndex(Context.Filter.Values.Order, filterName)
+end
+
 function GetStartingFilterIndex(godName)
+	if config.Filtering.DefaultLandingPage.Override then
+		local filterName = config.Filtering.DefaultLandingPage.Value
+		local filterIndex = GetFilterIndex(filterName)
+		if filterIndex > 0 then
+			return filterIndex
+		else
+			modutil.mod.Print(
+				"Warning: couldn't load default landing page override value ("
+					.. tostring(filterName)
+					.. ")... Switching back to default behavior"
+			)
+		end
+	end
+
 	local metGodsLookup = GetMetGodsLookup()
 	if metGodsLookup[godName] then
-		return game.GetIndex(Context.Filter.Values.Order, "Available") -- Display available by default for met gods
+		return GetFilterIndex("Available") -- Display available by default for met gods
 	elseif game.CurrentHubRoom or godName == "PlayerUnit" then
-		return game.GetIndex(Context.Filter.Values.Order, "Unfulfilled") -- Display unfulfilled if we are not in a run or for Melinoe (Run Boon Overview compat)
+		return GetFilterIndex("Unfulfilled") -- Display unfulfilled if we are not in a run or for Melinoe (Run Boon Overview compat)
 	else
-		return game.GetIndex(Context.Filter.Values.Order, "Unavailable") -- Display unavailable otherwise
+		return GetFilterIndex("Unavailable") -- Display unavailable otherwise
 	end
 end
 

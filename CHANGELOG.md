@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Default filter landing page configuration option as suggested by @surytrap
+
 ## [1.3.1] - 2026-01-17
 
 ### Fixed
