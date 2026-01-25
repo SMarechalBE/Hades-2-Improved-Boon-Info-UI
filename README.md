@@ -2,6 +2,20 @@
 
 This mod refines how boon information is displayed for all Olympian boon givers page during a run.
 
+## Motivation
+
+In the vanilla game, finding information for boons availability during an ongoing run is very complicated, 
+it even gets worse when you add banned boons in the equation.  
+
+This mod tries to make it immediately obvious:
+- Which boons you *already have*,
+- Which ones you *can pick up next*,
+- Which ones are *locked behind a sacrifice*,
+- Which ones require *forcing a god* with a keepsake,
+- Which ones you have no chance of seeing.
+
+*It avoids guesswork and reduces UI ambiguity without touching gameplay logic.*
+
 ## Explicit boon categories
 
 Boons are split into categories based on their current availability.
@@ -17,15 +31,6 @@ For boons with requirements:
 - **Unfulfilled**: boon requirements are still fulfillable but are not yet fulfilled,
 - **Unavailable – Keepsake Required**: any duo boon with one of the god out of the pool,
 - **Denied**: when all required boons for a given category are banned, those boons are thus implicitly banned as well.
-
-This approach makes it immediately obvious:
-- Which boons you *already have*,
-- Which ones you *can pick up next*,
-- Which ones are *locked behind sacrifice*,
-- Which ones require *forcing a god* with a keepsake,
-- Which ones you have no chance of seeing.
-
-*It avoids guesswork and reduces UI ambiguity without touching gameplay logic.*
 
 ## Boon button
 
@@ -95,27 +100,36 @@ Current filter pages are the following in this order:
 - **UNAVAILABLE**: adds boons from gods out of current pool and sacrifice boons,
 - **ALL**: adds picked and banned boons.
 
+## Setup
+- This mod uses the mod loader [Hell2Modding](https://thunderstore.io/c/hades-ii/p/Hell2Modding/Hell2Modding/). 
+- Go to the mod manager [r2modman](https://thunderstore.io/c/hades-ii/p/ebkr/r2modman/) page and follow the installation procedure.
+- Launch the game & Enjoy
+
 ## Configuration
 
 Multiple parameters can be configured if you desire extra customization:
-- `sacrificeBoonsAlwaysAsAvailable` (Default = **False**) : controls whether sacrifice/replacement boons are always considered as available. This can be useful if you often use vow of denial as those will appear more often,
-- `enablePinnedBoonsIconInRequirements` (Default = **True**) : controls whether pin icon is displayed next to pinned/tracked boons in the requirements list,
-- `enableBannedBoonsIconInRequirements` (Default = **True**) : controls whether locked icon is displayed next to banned boons in the requirements list,
+- `sacrificeBoonsAlwaysAsAvailable` (Default = **false**) : controls whether sacrifice/replacement boons are always considered as available. This can be useful if you often use vow of denial as those will appear more often,
+- `unreplaceableSacrificeBoonsAsBanned` (Default = **true**) : controls whether to always consider sacrifice/replacement boons for Heroic boons as banned. It can be useful to set this to false in case you play with mods changing the default behaviour (like adding more rarity options or stackable boons).
+### IconInRequirements
+- `Pinned` (Default = **true**) : controls whether pin icon is displayed next to pinned/tracked boons in the requirements list,
+- `Banned` (Default = **true**) : controls whether locked icon is displayed next to banned boons in the requirements list,
+### Filtering
+- `DefaultLandingPage`: Enables setting a default filter landing page override. Set the override value to true then choose one of the available options from *Available*, *Unfulfilled*, *Unavailable* or *All*
+### AvailabilityStyle
+Options in this section gives more customization possibilities on the colors used to display the different informations in codex page. All of those are divided into subsections: *Picked*, *Available*, *Unfulfilled*, *SlotUnavailable*, *GodUnavailable* and *Banned*.
+![Style - requirements](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/ConfigStyleReqs.png)
+![Style - button](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/ConfigStyleButton.png)
+All of those give the following to be separately enabled, and then separate overrides can be specified from `ButtonTitle`, `BulletList` and `Header` (except for *Picked* since it doesn't make any sense).
+Specifying a color can be done in 2 ways:
+1. RGBA hexadecimal value: use any color picker and set the required value (note: unspecifying alpha value will default it to max [FF]).
+2. In-game color definitions: those are defined inside `<PathToGameFiles>/Content/Scripts/ColorData.lua`. Simply specify one of those like `Color.White` for example.
 
-## Highly suggested: [Run Boon Overview](https://thunderstore.io/c/hades-ii/p/SMarBe/Run_Boon_Overview/)
-
-**Run Boon Overview** aggregates all boons from the current god pool into Melinoe's Codex page. This makes the information given from this even clearer.
-
-## Planned updates
-
-- Add the possibility to choose the coloring to apply to categories
-- Perhaps a fifth category (both requiring keepsake AND sacrifice)
-
-## Compatibility
-
-- Should be safe with all mods as long as they don't interact with Boon info listing.
-- It lightweight and doesn't touch to any game components so your save files are safe.
+## Mod suggestions
+Check out my others *QoL* mods, those are all cross-compatible and meant to be used together:
+- [Run Boon Overview](https://thunderstore.io/c/hades-ii/p/SMarBe/Run_Boon_Overview/): aggregates all your currently available boons into Melinoë's Codex page.
+- [Random Starting Keepsake](https://thunderstore.io/c/hades-ii/p/SMarBe/Random_Starting_Keepsake/): gives the possibility to set multiple keepsakes as favorite, a random one gets drawn when starting the run.
+- [Weapon Loadouts](https://thunderstore.io/c/hades-ii/p/SMarBe/Weapon_Loadouts/): saves loadouts (arcanas, familiar, keepsakes and pinned boons) for each weapon aspects.
 
 ## Issues and Feedback
 
-Feel free to contact me on the official Hades modding [Discord](https://discord.com/invite/KuMbyrN) and/or add an issue on the [repository](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI) for any encountered bugs or suggested improvements.
+Feel free to reach out to me on the official Hades modding [Discord](https://discord.com/invite/KuMbyrN) and/or add an issue on the [repository](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI) for any encountered bugs or suggested improvements.
