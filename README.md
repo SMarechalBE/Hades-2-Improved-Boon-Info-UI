@@ -117,8 +117,10 @@ Multiple parameters can be configured if you desire extra customization:
 - `DefaultLandingPage`: Enables setting a default filter landing page override. Set the override value to true then choose one of the available options from *Available*, *Unfulfilled*, *Unavailable* or *All*
 ### AvailabilityStyle
 Options in this section gives more customization possibilities on the colors used to display the different informations in codex page. All of those are divided into subsections: *Picked*, *Available*, *Unfulfilled*, *SlotUnavailable*, *GodUnavailable* and *Banned*.
+
 ![Style - requirements](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/ConfigStyleReqs.png)
 ![Style - button](https://github.com/SMarechalBE/Hades-2-Improved-Boon-Info-UI/raw/main/img/ConfigStyleButton.png)
+
 All of those give the following to be separately enabled, and then separate overrides can be specified from `ButtonTitle`, `BulletList` and `Header` (except for *Picked* since it doesn't make any sense).
 Specifying a color can be done in 2 ways:
 1. RGBA hexadecimal value: use any color picker and set the required value (note: unspecifying alpha value will default it to max [FF]).
