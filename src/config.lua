@@ -53,6 +53,9 @@ local config = {
 		Pinned = { Enable = true },
 		Banned = { Enable = true },
 	},
+	Filtering = {
+		DefaultLandingPage = MakeOverride(false, "All"),
+	},
 	AvailabilityStyle = {
 		Picked = {
 			Enable = true,
@@ -156,6 +159,12 @@ local configDesc = {
 	IconInRequirements = {
 		Pinned = { Enable = "Set to true to display pin icon next to pinned/tracked boons in the requirements list." },
 		Banned = { Enable = "Set to true to display locked icon next to banned boons in the requirements list." },
+	},
+	Filtering = {
+		DefaultLandingPage = MakeOverride(
+			"Enable setting a default filter landing page override",
+			"Acceptable values: Available, Unfulfilled, Unavailable, All"
+		),
 	},
 	AvailabilityStyle = {
 		Picked = {
