@@ -608,77 +608,69 @@ modutil.mod.Path.Override(
 
 --#region Filtering
 
-BoonInfoFilterButtonsBar = {
-	X = game.UIData.ContextualButtonXRight,
-	Y = game.UIData.ContextualButtonY,
-	BottomOffset = game.UIData.ActionBarBottomOffset,
-	AutoAlignContextualButtons = true,
-	AutoAlignJustification = "Right",
+local FilterComponents = {
+	BoonInfoFilterButtonsBar = {
+		X = game.UIData.ContextualButtonXRight,
+		Y = game.UIData.ContextualButtonY,
+		BottomOffset = game.UIData.ActionBarBottomOffset,
+		AutoAlignContextualButtons = true,
+		AutoAlignJustification = "Right",
 
-	ChildrenOrder = {
-		"NextFilter",
-		"PreviousFilter",
-	},
-
-	Children = {
-		NextFilter = {
-			Graphic = "ContextualActionButton",
-			Alpha = 0.0,
-			Data = {
-				-- Hotkey only
-				OnPressedFunctionName = "BoonInfoScreenNextFilter",
-				ControlHotkeys = { "MenuRight" },
-			},
-			Text = "Menu_NextCategory",
-			TextArgs = game.UIData.ContextualButtonFormatRight,
+		ChildrenOrder = {
+			"NextFilter",
+			"PreviousFilter",
 		},
 
-		PreviousFilter = {
-			Graphic = "ContextualActionButton",
-			Alpha = 0.0,
-			Data = {
-				-- Hotkey only
-				OnPressedFunctionName = "BoonInfoScreenPreviousFilter",
-				ControlHotkeys = { "MenuLeft" },
+		Children = {
+			NextFilter = {
+				Graphic = "ContextualActionButton",
+				Alpha = 0.0,
+				Data = {
+					-- Hotkey only
+					OnPressedFunctionName = "BoonInfoScreenNextFilter",
+					ControlHotkeys = { "MenuRight" },
+				},
+				Text = "Menu_NextCategory",
+				TextArgs = game.UIData.ContextualButtonFormatRight,
 			},
-			Text = "Menu_PrevCategory",
-			TextArgs = game.UIData.ContextualButtonFormatRight,
+
+			PreviousFilter = {
+				Graphic = "ContextualActionButton",
+				Alpha = 0.0,
+				Data = {
+					-- Hotkey only
+					OnPressedFunctionName = "BoonInfoScreenPreviousFilter",
+					ControlHotkeys = { "MenuLeft" },
+				},
+				Text = "Menu_PrevCategory",
+				TextArgs = game.UIData.ContextualButtonFormatRight,
+			},
+		},
+	},
+
+	BoonInfoFilterTextBar = {
+		X = game.UIData.ContextualButtonXRight - 300,
+		Y = game.UIData.ContextualButtonY,
+		BottomOffset = game.UIData.ActionBarBottomOffset + 40,
+		AutoAlignContextualButtons = true,
+		AutoAlignJustification = "Left",
+
+		ChildrenOrder = {
+			"TextFilterType",
+		},
+
+		Children = {
+			TextFilterType = {
+				Graphic = "ContextualActionButton",
+				Alpha = 1.0,
+				Text = "FILTER: NONE",
+				TextArgs = game.UIData.ContextualButtonFormatLeft,
+			},
 		},
 	},
 }
 
-BoonInfoFilterTextBar = {
-	X = game.UIData.ContextualButtonXRight - 300,
-	Y = game.UIData.ContextualButtonY,
-	BottomOffset = game.UIData.ActionBarBottomOffset + 40,
-	AutoAlignContextualButtons = true,
-	AutoAlignJustification = "Left",
-
-	ChildrenOrder = {
-		"TextFilterType",
-		-- "TextFilterLabel",
-	},
-
-	Children = {
-		TextFilterType = {
-			Graphic = "ContextualActionButton",
-			Alpha = 1.0,
-			Text = "FILTER: NONE",
-			TextArgs = game.UIData.ContextualButtonFormatLeft,
-		},
-
-		-- TextFilterLabel =
-		-- {
-		-- 	Graphic = "ContextualActionButton",
-		-- 	Alpha = 1.0,
-		-- 	Text = "FILTER: ",
-		-- 	TextArgs = game.UIData.ContextualButtonFormatRight,
-		-- },
-	},
-}
-
-table.insert(game.ScreenData.BoonInfo.ComponentData, BoonInfoFilterButtonsBar)
-table.insert(game.ScreenData.BoonInfo.ComponentData, BoonInfoFilterTextBar)
+modutil.mod.Table.Merge(game.ScreenData.BoonInfo.ComponentData, FilterComponents)
 
 modutil.mod.Path.Wrap("BoonInfoScreenNextFilter", function(base, screen, button)
 	BoonInfoScreenNextFilter(screen, button)
